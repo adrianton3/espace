@@ -61,7 +61,7 @@ describe('Tokenizer', function () {
     });
 
     it('can tokenize a multi line comment', function () {
-        expect(chop(';{};')).toEqual([]);
-        expect(chop(';{asd\nasd};')).toEqual([]);
+        expect(chop(';--;')).toEqual([]);
+        expect(chop(';-asd\nasd-;')).toEqual([]);
     });
 });
