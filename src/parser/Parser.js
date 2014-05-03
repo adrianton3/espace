@@ -20,7 +20,7 @@
         } else {
             if (tokens.length > 1) {
                 var ex = new Error('Unexpected token');
-            	ex.coords = str.getCoords();
+            	ex.coords = token.coords;
             	throw ex;
             }
             root = { token: token };

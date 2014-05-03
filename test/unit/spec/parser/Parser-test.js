@@ -213,4 +213,15 @@ describe('Parser', function () {
 		}];
 		expect(parse.bind(null, tokens)).toThrow(new Error('Cannot start with )'));
 	});
+
+	it('throws an exception when given more than one atom', function () {
+		var tokens = [{
+			type: 'number',
+			value: 11
+		}, {
+			type: 'number',
+			value: 22
+		}];
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
+	});
 });
