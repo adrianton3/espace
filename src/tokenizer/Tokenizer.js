@@ -167,7 +167,7 @@
 		}
 
 		return function chop(string) {
-			var str = new sep.IterableString(string + ' ');
+			var str = new espace.IterableString(string + ' ');
 			var tokens = [];
 
 			while (str.hasNext()) {
@@ -210,6 +210,6 @@
 		};
 	}
 
-    window.sep = window.sep || {};
-    window.sep.Tokenizer = Tokenizer;
+    window.espace = window.espace || {};
+    window.espace.Tokenizer = Tokenizer;
 })();

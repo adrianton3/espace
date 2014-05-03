@@ -1,5 +1,5 @@
 describe('Tokenizer', function () {
-	var chop = sep.Tokenizer();
+	var chop = espace.Tokenizer();
 
     it('can tokenize an empty string', function () {
         expect(chop('')).toEqual([]);

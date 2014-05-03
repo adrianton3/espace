@@ -1,10 +1,13 @@
 describe('Parser', function () {
+	var Parser = espace.Parser;
+	var parse = Parser.parse;
+
     it('can parse an atom', function () {
         var tokens = [{
             type: 'x',
             value: 123
         }];
-        expect(sep.Parser.parse(tokens)).toEqual(tokens[0]);
+        expect(parse(tokens)).toEqual(tokens[0]);
     });
 
     it('can parse an empty paren', function () {
@@ -15,7 +18,7 @@ describe('Parser', function () {
             type: ')',
             value: 234
         }];
-        expect(sep.Parser.parse(tokens)).toEqual({
+        expect(parse(tokens)).toEqual({
             token: {
                 type: '(',
                 value: 123
@@ -35,7 +38,7 @@ describe('Parser', function () {
             type: ')',
             value: 345
         }];
-        expect(sep.Parser.parse(tokens)).toEqual({
+        expect(parse(tokens)).toEqual({
             token: {
                 type: '(',
                 value: 123
@@ -61,7 +64,7 @@ describe('Parser', function () {
             type: ')',
             value: 456
         }];
-        expect(sep.Parser.parse(tokens)).toEqual({
+        expect(parse(tokens)).toEqual({
             token: {
                 type: '(',
                 value: 123
@@ -90,7 +93,7 @@ describe('Parser', function () {
             type: ')',
             value: 456
         }];
-        expect(sep.Parser.parse(tokens)).toEqual({
+        expect(parse(tokens)).toEqual({
             token: {
                 type: '(',
                 value: 123
@@ -122,7 +125,7 @@ describe('Parser', function () {
             type: ')',
             value: 567
         }];
-        expect(sep.Parser.parse(tokens)).toEqual({
+        expect(parse(tokens)).toEqual({
             token: {
                 type: '(',
                 value: 123
@@ -169,7 +172,7 @@ describe('Parser', function () {
             type: ')',
             value: 99
         }];
-        expect(sep.Parser.parse(tokens)).toEqual({
+        expect(parse(tokens)).toEqual({
             token: {
                 type: '(',
                 value: 11

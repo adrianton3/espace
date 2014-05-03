@@ -48,6 +48,6 @@
         };
 	};
 
-    window.sep = window.sep || {};
-    window.sep.IterableString = IterableString;
+    window.espace = window.espace || {};
+    window.espace.IterableString = IterableString;
 })();

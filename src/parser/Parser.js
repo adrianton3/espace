@@ -46,6 +46,6 @@
         return root;
     };
 
-    window.sep = window.sep || {};
-    window.sep.Parser = Parser;
+    window.espace = window.espace || {};
+    window.espace.Parser = Parser;
 })();
