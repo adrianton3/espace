@@ -7,7 +7,12 @@ describe('Parser', function () {
             type: 'x',
             value: 123
         }];
-        expect(parse(tokens)).toEqual(tokens[0]);
+        expect(parse(tokens)).toEqual({
+			token: {
+				type: 'x',
+				value: 123
+			}
+		});
     });
 
     it('can parse an empty paren', function () {

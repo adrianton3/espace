@@ -23,7 +23,7 @@
             	ex.coords = str.getCoords();
             	throw ex;
             }
-            root = token;
+            root = { token: token };
             return root;
         }
 
