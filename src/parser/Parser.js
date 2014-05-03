@@ -15,7 +15,7 @@
             stack.push(currentLevel);
         } else if (token.type === ')') {
             var ex = new Error('Cannot start with )');
-            ex.coords = str.getCoords();
+            ex.coords = token.coords;
             throw ex;
         } else {
             if (tokens.length > 1) {

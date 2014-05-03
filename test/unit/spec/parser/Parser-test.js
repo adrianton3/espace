@@ -206,4 +206,11 @@ describe('Parser', function () {
             }]
         });
     });
+
+	it('throws an exception when starting with a )', function () {
+		var tokens = [{
+			type: ')'
+		}];
+		expect(parse.bind(null, tokens)).toThrow(new Error('Cannot start with )'));
+	});
 });

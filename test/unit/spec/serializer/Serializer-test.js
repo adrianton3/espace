@@ -1,0 +1,44 @@
+describe('Serializer', function () {
+	var Serializer = window.espace.Serializer;
+	var serialize = Serializer.serialize;
+
+	it('can serialize a number', function () {
+		var tree = {
+			token: {
+				type: 'number',
+				value: 123
+			}
+		};
+		expect(serialize(tree)).toEqual(123);
+	});
+
+	it('can serialize a string', function () {
+		var tree = {
+			token: {
+				type: 'string',
+				value: 'asd'
+			}
+		};
+		expect(serialize(tree)).toEqual('"asd"');
+	});
+
+	it('can serialize an alphanum', function () {
+		var tree = {
+			token: {
+				type: 'alphanum',
+				value: 'asd'
+			}
+		};
+		expect(serialize(tree)).toEqual('asd');
+	});
+
+	it('can serialize an empty paren', function () {
+		var tree = {
+			token: {
+				type: '('
+			},
+			tree: []
+		};
+		expect(serialize(tree)).toEqual('()');
+	});
+});
