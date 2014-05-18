@@ -20,10 +20,6 @@
 		}
 	};
 
-	if (window) {
-		window.espace = window.espace || {};
-		window.espace.Serializer = Serializer;
-	} else {
-		exports.Serializer = Serializer;
-	}
+	window.espace = window.espace || {};
+	window.espace.Serializer = Serializer;
 })();

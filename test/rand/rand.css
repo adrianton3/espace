@@ -1,0 +1,28 @@
+body {
+    font-family: sans-serif;
+    background-color: #f3f3f3;
+}
+
+.config-title {
+    background-color: #a8b3ed;
+    border-radius: 3px;
+    padding: 4px 8px;
+}
+
+.config-content {
+    font-family: monospace;
+    border-radius: 3px;
+    padding: 4px;
+}
+
+.mismatch-title {
+    background-color: #dc4f56;
+    border-radius: 3px;
+    padding: 4px 8px;
+}
+
+.mismatch-content {
+    font-family: monospace;
+    border-radius: 3px;
+    padding: 4px;
+}

@@ -39,7 +39,7 @@
                 stack.pop();
                 currentLevel = stack[stack.length - 1];
             } else {
-                currentLevel.tree.push(token);
+                currentLevel.tree.push({ token: token });
             }
         }
 

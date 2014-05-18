@@ -49,8 +49,10 @@ describe('Parser', function () {
                 value: 123
             },
             tree: [{
-                type: 'x',
-                value: 234
+				token: {
+					type: 'x',
+					value: 234
+				}
             }]
         });
     });
@@ -75,11 +77,15 @@ describe('Parser', function () {
                 value: 123
             },
             tree: [{
-                type: 'x',
-                value: 234
+				token: {
+					type: 'x',
+					value: 234
+				}
             }, {
-                type: 'y',
-                value: 345
+				token: {
+					type: 'y',
+					value: 345
+				}
             }]
         });
     });
@@ -141,8 +147,10 @@ describe('Parser', function () {
                     value: 234
                 },
                 tree: [{
-                    type: 'x',
-                    value: 345
+					token: {
+						type: 'x',
+						value: 345
+					}
                 }]
             }]
         });
@@ -183,20 +191,26 @@ describe('Parser', function () {
                 value: 11
             },
             tree: [{
-				type: 'a',
-            	value: 22
+				token: {
+					type: 'a',
+					value: 22
+				}
         	}, {
                 token: {
                     type: '(',
                     value: 33
                 },
                 tree: [{
-                    type: 'b',
-                    value: 44
+					token: {
+						type: 'b',
+						value: 44
+					}
                 }]
             }, {
-				type: 'c',
-            	value: 66
+				token: {
+					type: 'c',
+					value: 66
+				}
         	}, {
                 token: {
                     type: '(',

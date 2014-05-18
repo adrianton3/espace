@@ -3,9 +3,9 @@
 
 	function Tokenizer(options) {
 		options = options || {};
-		var ws = options.whitespace;
-		var comments = options.comments;
-		var coords = options.coords;
+		var ws = !!options.whitespace;
+		var comments = !!options.comments;
+		var coords = !!options.coords;
 
 		var token, tokenV;
 		if (coords) {
