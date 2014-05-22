@@ -64,4 +64,40 @@ describe('Tokenizer', function () {
         expect(chop(';--;')).toEqual([]);
         expect(chop(';-asd\nasd-;')).toEqual([]);
     });
+
+	it('can tokenize a single quoted empty string', function () {
+		expect(chop("''")).toEqual([{
+			type: 'string',
+			value: ''
+		}]);
+	});
+
+	it('can tokenize a single quoted string', function () {
+		expect(chop("'asd'")).toEqual([{
+			type: 'string',
+			value: 'asd'
+		}]);
+	});
+
+	it('throws an exception on a non-terminated single-quoted string', function () {
+		expect(chop.bind(null, "'")).toThrow(new Error('String not properly ended'));
+	});
+
+	it('can tokenize a doubly quoted empty string', function () {
+		expect(chop('""')).toEqual([{
+			type: 'string',
+			value: ''
+		}]);
+	});
+
+	it('can tokenize a doubly quoted string', function () {
+		expect(chop('"asd"')).toEqual([{
+			type: 'string',
+			value: 'asd'
+		}]);
+	});
+
+	it('throws an exception on a non-terminated doubly-quoted string', function () {
+		expect(chop.bind(null, '"')).toThrow(new Error('String not properly ended'));
+	});
 });

@@ -41,4 +41,44 @@ describe('Serializer', function () {
 		};
 		expect(serialize(tree)).toEqual('()');
 	});
+
+	it('can serialize a nested empty paren', function () {
+		var tree = {
+			token: {
+				type: '('
+			},
+			tree: [{
+				token: {
+					type: '('
+				},
+				tree: []
+			}]
+		};
+		expect(serialize(tree)).toEqual('(())');
+	});
+
+	it('can serialize an expression', function () {
+		var tree = {
+			token: {
+				type: '('
+			},
+			tree: [{
+				token: {
+					type: 'alphanum',
+					value: '+'
+				}
+			}, {
+				token: {
+					type: 'number',
+					value: 123
+				}
+			}, {
+				token: {
+					type: 'number',
+					value: 456
+				}
+			}]
+		};
+		expect(serialize(tree)).toEqual('(+ 123 456)');
+	});
 });
