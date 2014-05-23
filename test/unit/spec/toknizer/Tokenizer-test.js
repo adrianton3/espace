@@ -100,4 +100,20 @@ describe('Tokenizer', function () {
 	it('throws an exception on a non-terminated doubly-quoted string', function () {
 		expect(chop.bind(null, '"')).toThrow(new Error('String not properly ended'));
 	});
+
+	it('unescapes a single quoted string', function () {
+		var string = "'a\\ns\\tz\"dfg\"\"\"h'";
+		expect(chop(string)).toEqual([{
+			type: 'string',
+			value: eval(string)
+		}]);
+	});
+
+	it('unescapes a doubly-quoted string', function () {
+		var string = '"a\\ns\\tz\'dfg\'\'\'h"';
+		expect(chop(string)).toEqual([{
+			type: 'string',
+			value: eval(string)
+		}]);
+	});
 });

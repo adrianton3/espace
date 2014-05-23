@@ -37,13 +37,6 @@
 				};
 			};
 		}
-		// ---
-
-		function unescapeString(string) {
-			return string.replace(/\\\'/g, '\'')
-			    .replace(/\\\"/g, '\"')
-				.replace(/\\\\/g, '\\');
-		}
 
 		function stringSingle(str) {
 			str.setMarker();
@@ -54,7 +47,9 @@
 	                str.advance();
 	            } else if (str.current() === "'") {
 	                str.advance();
-	                return token('string', unescapeString(str.getMarked().slice(1, -1)), str.getCoords());
+	                return token('string', JSON.parse('"' +
+						str.getMarked().slice(1, -1).replace(/([^\\])(?=")/g, '$1\\') +
+						'"'), str.getCoords());
 	            } else if (str.current() === '\n' || !str.hasNext()) {
 	                var ex = new Error('String not properly ended');
 	                ex.coords = str.getCoords();
@@ -74,7 +69,7 @@
 	                str.advance();
 	            } else if (str.current() === '"') {
 	                str.advance();
-	                return token('string', unescapeString(str.getMarked().slice(1, -1)), str.getCoords());
+	                return token('string', JSON.parse(str.getMarked()), str.getCoords());
 	            } else if (str.current() === '\n' || !str.hasNext()) {
 	            	var ex = new Error('String not properly ended');
 	                ex.coords = str.getCoords();
