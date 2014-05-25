@@ -36,12 +36,19 @@
                 currentLevel = newLevel;
                 stack.push(currentLevel);
             } else if (token.type === ')') {
-                stack.pop();
-                currentLevel = stack[stack.length - 1];
+				if (!stack.length) {
+					throw new Error('Unexpected )');
+				}
+				stack.pop();
+				currentLevel = stack[stack.length - 1];
             } else {
                 currentLevel.tree.push({ token: token });
             }
         }
+
+		if (stack.length) {
+			throw new Error('Missing )');
+		}
 
         return root;
     };

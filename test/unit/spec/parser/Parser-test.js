@@ -221,11 +221,29 @@ describe('Parser', function () {
         });
     });
 
+	it('throws an exception when trying to parse just (', function () {
+		var tokens = [{
+			type: '('
+		}];
+		expect(parse.bind(null, tokens)).toThrow(new Error('Missing )'));
+	});
+
 	it('throws an exception when starting with a )', function () {
 		var tokens = [{
 			type: ')'
 		}];
 		expect(parse.bind(null, tokens)).toThrow(new Error('Cannot start with )'));
+	});
+
+	it('throws an exception when trying to parse ())', function () {
+		var tokens = [{
+			type: '('
+		}, {
+			type: ')'
+		}, {
+			type: ')'
+		}];
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected )'));
 	});
 
 	it('throws an exception when given more than one atom', function () {
