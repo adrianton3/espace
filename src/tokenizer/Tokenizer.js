@@ -100,8 +100,8 @@
 
 			if (') \n\t'.indexOf(str.current()) === -1) {
 	            var ex = new Error("Unexpected character '" +
-	                str.current() + "' after \"" +
-	                str.getMarked() + '"');
+	                str.current() + "' after '" +
+	                str.getMarked() + "'");
 	            ex.coords = str.getCoords();
 	            throw ex;
 	        }
