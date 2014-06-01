@@ -243,7 +243,7 @@ describe('Parser', function () {
 		}, {
 			type: ')'
 		}];
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected )'));
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
 	});
 
 	it('throws an exception when given more than one atom', function () {
@@ -253,6 +253,41 @@ describe('Parser', function () {
 		}, {
 			type: 'number',
 			value: 22
+		}];
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
+	});
+
+	it('throws an exception when parsing *()', function () {
+		var tokens = [{
+			type: '*'
+		}, {
+			type: '('
+		}, {
+			type: ')'
+		}];
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
+	});
+
+	it('throws an exception when parsing ()*', function () {
+		var tokens = [{
+			type: '('
+		}, {
+			type: ')'
+		}, {
+			type: '*'
+		}];
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
+	});
+
+	it('throws an exception when parsing ()()', function () {
+		var tokens = [{
+			type: '('
+		}, {
+			type: ')'
+		}, {
+			type: '('
+		}, {
+			type: ')'
 		}];
 		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
 	});

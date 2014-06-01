@@ -21,8 +21,9 @@
 		this.pointer++;
 	};
 
-	IterableString.prototype.setMarker = function () {
-		this.marker = this.pointer;
+	IterableString.prototype.setMarker = function (offset) {
+		offset = offset || 0;
+		this.marker = this.pointer + offset;
 	};
 
 	IterableString.prototype.current = function () {
@@ -37,8 +38,9 @@
 		return this.pointer < this.string.length;
 	};
 
-	IterableString.prototype.getMarked = function () {
-		return this.string.substring(this.marker, this.pointer);
+	IterableString.prototype.getMarked = function (offset) {
+		offset = offset || 0;
+		return this.string.substring(this.marker, this.pointer + offset);
 	};
 
 	IterableString.prototype.getCoords = function () {

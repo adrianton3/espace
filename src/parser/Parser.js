@@ -30,15 +30,16 @@
         for (var i = 1; i < tokens.length; i++) {
             token = tokens[i];
 
+			if (!currentLevel) {
+				throw new Error('Unexpected token');
+			}
+
             if (token.type === '(') {
                 var newLevel = { token: token, tree: [] };
                 currentLevel.tree.push(newLevel);
                 currentLevel = newLevel;
                 stack.push(currentLevel);
             } else if (token.type === ')') {
-				if (!stack.length) {
-					throw new Error('Unexpected )');
-				}
 				stack.pop();
 				currentLevel = stack[stack.length - 1];
             } else {

@@ -38,46 +38,62 @@
 			};
 		}
 
+		var escape = {
+			'\\': '\\',
+			'n': '\n',
+			't': '\t',
+			"'": "'",
+			'"': '"'
+		};
+
 		function stringSingle(str) {
-			str.setMarker();
+			var accumulated = [];
 			str.advance();
 
 			while (true) {
-				if (str.current() == '\\') {
-	                str.advance();
-	            } else if (str.current() === "'") {
-	                str.advance();
-	                return token('string', JSON.parse('"' +
-						str.getMarked().slice(1, -1).replace(/([^\\])(?=")/g, '$1\\') +
-						'"'), str.getCoords());
-	            } else if (str.current() === '\n' || !str.hasNext()) {
-	                var ex = new Error('String not properly ended');
-	                ex.coords = str.getCoords();
-	                throw ex;
-	            }
+				if (str.current() === '\\') {
+					str.advance();
+					if (escape[str.current()]) {
+						accumulated.push(escape[str.current()]);
+					}
+				} else if (str.current() === "'") {
+					str.advance();
+					return token('string', accumulated.join(''), str.getCoords());
+				} else if (str.current() === '\n' || !str.hasNext()) {
+					var ex = new Error('String not properly ended');
+					ex.coords = str.getCoords();
+					throw ex;
+				} else {
+					accumulated.push(str.current())
+				}
 
 				str.advance();
 			}
 		}
 
 		function stringDouble(str) {
-			str.setMarker();
+			var accumulated = [];
 			str.advance();
 
-	        while (true) {
-	            if (str.current() === '\\') {
-	                str.advance();
-	            } else if (str.current() === '"') {
-	                str.advance();
-	                return token('string', JSON.parse(str.getMarked()), str.getCoords());
-	            } else if (str.current() === '\n' || !str.hasNext()) {
-	            	var ex = new Error('String not properly ended');
-	                ex.coords = str.getCoords();
-	                throw ex;
-	            }
+			while (true) {
+				if (str.current() === '\\') {
+					str.advance();
+					if (escape[str.current()]) {
+						accumulated.push(escape[str.current()]);
+					}
+				} else if (str.current() === '"') {
+					str.advance();
+					return token('string', accumulated.join(''), str.getCoords());
+				} else if (str.current() === '\n' || !str.hasNext()) {
+					var ex = new Error('String not properly ended');
+					ex.coords = str.getCoords();
+					throw ex;
+				} else {
+					accumulated.push(str.current())
+				}
 
-	            str.advance();
-	        }
+				str.advance();
+			}
 		}
 
 		function number(str) {
@@ -110,7 +126,7 @@
 		}
 
 		function commentMulti(str) {
-			str.setMarker();
+			str.setMarker(2);
 			str.advance();
 			str.advance();
 
@@ -118,7 +134,7 @@
 				if (str.current() === '-' && str.next() === ';') {
 					str.advance();
 					str.advance();
-	                return token('comment', str.getMarked(), str.getCoords());
+	                return token('comment', str.getMarked(-2), str.getCoords());
 				} else if (str.hasNext()) {
 					str.advance();
 				} else {
@@ -130,7 +146,7 @@
 		}
 
 		function commentSingle(str) {
-			str.setMarker();
+			str.setMarker(1);
 			str.advance();
 
 			while (true) {
@@ -162,7 +178,7 @@
 		}
 
 		return function chop(string) {
-			var str = new espace.IterableString(string + ' ');
+			var str = new espace.IterableString(string);
 			var tokens = [];
 
 			while (str.hasNext()) {
