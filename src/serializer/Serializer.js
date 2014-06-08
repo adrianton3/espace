@@ -4,11 +4,15 @@
 	var Serializer = {};
 
 	Serializer.serialize = function (expression) {
+		if (!expression) {
+			return '';
+		}
+
 		switch (expression.token.type) {
 			case 'string':
 				return '"' + expression.token.value + '"';
 			case 'number':
-				return expression.token.value;
+				return '' + expression.token.value;
 			case 'alphanum':
 				return expression.token.value;
 			case '(':

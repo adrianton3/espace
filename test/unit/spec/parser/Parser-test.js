@@ -2,6 +2,11 @@ describe('Parser', function () {
 	var Parser = espace.Parser;
 	var parse = Parser.parse;
 
+	it('can parse nothing', function () {
+		var tokens = [];
+		expect(parse(tokens)).toBeNull();
+	});
+
     it('can parse an atom', function () {
         var tokens = [{
             type: 'x',

@@ -3,7 +3,17 @@
 
     var Parser = {};
 
+	function raise(token, message) {
+		var ex = new Error(message);
+		ex.coords = token.coords;
+		throw ex;
+	}
+
     Parser.parse = function (tokens) {
+		if (!tokens.length) {
+			return null;
+		}
+
         var root;
         var stack = [];
         var currentLevel = null;
@@ -14,14 +24,10 @@
             root = currentLevel;
             stack.push(currentLevel);
         } else if (token.type === ')') {
-            var ex = new Error('Cannot start with )');
-            ex.coords = token.coords;
-            throw ex;
+            raise(token, 'Cannot start with )');
         } else {
             if (tokens.length > 1) {
-                var ex = new Error('Unexpected token');
-            	ex.coords = token.coords;
-            	throw ex;
+				raise(token, 'Unexpected token');
             }
             root = { token: token };
             return root;
@@ -31,7 +37,7 @@
             token = tokens[i];
 
 			if (!currentLevel) {
-				throw new Error('Unexpected token');
+				raise(token, 'Unexpected token');
 			}
 
             if (token.type === '(') {
@@ -48,7 +54,7 @@
         }
 
 		if (stack.length) {
-			throw new Error('Missing )');
+			raise(token, 'Missing )');
 		}
 
         return root;

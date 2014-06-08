@@ -9,7 +9,7 @@ describe('Serializer', function () {
 				value: 123
 			}
 		};
-		expect(serialize(tree)).toEqual(123);
+		expect(serialize(tree)).toEqual('123');
 	});
 
 	it('can serialize a string', function () {
