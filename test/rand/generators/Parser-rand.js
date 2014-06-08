@@ -76,15 +76,14 @@
 	}];
 
 	var nTest = 10;
-	var progress;
 	var tokenizer;
 
 	configs.forEach(function (config) {
 		rand.TaskRunner.push(function () {
-			progress = rand.HtmlReporter.announceConfig(config, nTest).progress;
+			rand.HtmlReporter.describe('Well formed expressions', config, nTest);
 			tokenizer = espace.Tokenizer();
 		});
-		repeat(nTest, function (i) {
+		repeat(nTest, function () {
 			rand.TaskRunner.push(function () {
 				var expression = generateExpression(config);
 				var tokens = tokenizer(expression);
@@ -92,13 +91,11 @@
 				var serializedExpression = espace.Serializer.serialize(tree);
 
 				if (expression !== serializedExpression) {
-					rand.HtmlReporter.announceMismatch(expression, serializedExpression);
+					rand.HtmlReporter.report('Found mismatch' + expression + '<hr>' + serializedExpression);
 				}
 
-				progress.innerText = '(' + (i + 1) + '/' + nTest + ')';
+				rand.HtmlReporter.advance();
 			});
 		});
 	});
-
-	rand.TaskRunner.start();
 })();

@@ -26,3 +26,7 @@ body {
     border-radius: 3px;
     padding: 4px;
 }
+
+.config-progress {
+    padding-left: 8px;
+}
