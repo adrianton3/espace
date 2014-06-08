@@ -1,6 +1,12 @@
 (function () {
 	'use strict';
 
+	function raise(coords, message) {
+		var ex = new Error(message);
+		ex.coords = coords;
+		throw ex;
+	}
+
 	function Tokenizer(options) {
 		options = options || {};
 		var ws = !!options.whitespace;
@@ -60,9 +66,7 @@
 					str.advance();
 					return token('string', accumulated.join(''), str.getCoords());
 				} else if (str.current() === '\n' || !str.hasNext()) {
-					var ex = new Error('String not properly ended');
-					ex.coords = str.getCoords();
-					throw ex;
+					raise(str.getCoords(), 'String not properly ended');
 				} else {
 					accumulated.push(str.current())
 				}
@@ -85,9 +89,7 @@
 					str.advance();
 					return token('string', accumulated.join(''), str.getCoords());
 				} else if (str.current() === '\n' || !str.hasNext()) {
-					var ex = new Error('String not properly ended');
-					ex.coords = str.getCoords();
-					throw ex;
+					raise(str.getCoords(), 'String not properly ended');
 				} else {
 					accumulated.push(str.current())
 				}
@@ -115,11 +117,9 @@
 			}
 
 			if (') \n\t'.indexOf(str.current()) === -1) {
-	            var ex = new Error("Unexpected character '" +
-	                str.current() + "' after '" +
-	                str.getMarked() + "'");
-	            ex.coords = str.getCoords();
-	            throw ex;
+				raise(str.getCoords(), "Unexpected character '" +
+					str.current() + "' after '" +
+					str.getMarked() + "'");
 	        }
 
 			return token('number', +str.getMarked(), str.getCoords());
@@ -138,9 +138,7 @@
 				} else if (str.hasNext()) {
 					str.advance();
 				} else {
-					var ex = new Error('Multiline comment not properly terminated');
-	                ex.coords = str.getCoords();
-	                throw ex;
+					raise(str.getCoords(), 'Multiline comment not properly terminated');
 				}
 			}
 		}
