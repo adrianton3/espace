@@ -3,6 +3,12 @@ espace.js
 
 S-expression parser in JavaScript
 
+Try it
+------
+
+[Tokenizer](http://madflame991.github.io/espace.js/examples/lexer/lexer.html)
+
+
 Usage
 -----
 
