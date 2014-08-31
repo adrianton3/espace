@@ -24,8 +24,8 @@ p {
 }
 
 #input-editor,#output-editor {
-    width:400px;
-    height:300px;
+    width: 400px;
+    height: 300px;
 }
 
 .editor-container+.editor-container {
