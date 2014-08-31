@@ -6,7 +6,8 @@ S-expression parser in JavaScript
 Try it
 ------
 
-[Tokenizer](http://madflame991.github.io/espace.js/examples/lexer/lexer.html)
+[Tokens](http://madflame991.github.io/espace.js/examples/tokens/tokens.html)
+[Tree](http://madflame991.github.io/espace.js/examples/tree/tree.html)
 
 
 Usage
