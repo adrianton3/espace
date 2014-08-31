@@ -1,0 +1,33 @@
+body {
+    background-color: #131411;
+    color: white;
+    font-family: sans-serif;
+}
+
+.center {
+    margin: 0 auto;
+    margin-top: 80px;
+    width: 1040px;
+}
+
+p {
+    margin-left: 20px;
+}
+
+.title,.header {
+    font-weight: bold;
+    font-size: small;
+}
+
+.editor-container {
+    float: left;
+}
+
+#input-editor,#output-editor {
+    width: 500px;
+    height: 300px;
+}
+
+.editor-container+.editor-container {
+    margin-left: 40px;
+}
