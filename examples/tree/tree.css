@@ -7,7 +7,7 @@ body {
 .center {
     margin: 0 auto;
     margin-top: 80px;
-    width: 840px;
+    width: 1040px;
 }
 
 p {
@@ -24,8 +24,8 @@ p {
 }
 
 #input-editor,#output-editor {
-    width:400px;
-    height:300px;
+    width: 500px;
+    height: 300px;
 }
 
 .editor-container+.editor-container {
