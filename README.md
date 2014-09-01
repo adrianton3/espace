@@ -8,6 +8,7 @@ Try it
 
 + [Tokens](http://madflame991.github.io/espace.js/examples/tokens/tokens.html)
 + [Tree](http://madflame991.github.io/espace.js/examples/tree/tree.html)
++ [Macros](http://madflame991.github.io/espace.js/examples/macros/macros.html)
 
 
 Usage
