@@ -192,27 +192,33 @@ describe('Expander', function () {
 			return tree;
 		};
 
-//		var tokenA = function (value) {
-//			return {
-//				token: {
-//					type: 'alphanum',
-//					value: value
-//				}
-//			};
-//		};
-//
-//		var tokenP = function (rest) {
-//			var tree = {
-//				token: {
-//					type: '('
-//				},
-//				tree: Array.prototype.slice.call(arguments, 1)
-//			};
-//			if (rest) {
-//				tree.rest = rest;
-//			}
-//			return tree;
-//		};
+		var tokenA = function (value) {
+			return {
+				token: {
+					type: 'alphanum',
+					value: value
+				}
+			};
+		};
+
+		var tokenP = function (rest) {
+			var tree = {
+				token: {
+					type: '('
+				},
+				tree: Array.prototype.slice.call(arguments, 1)
+			};
+			if (rest) {
+				tree.rest = rest;
+			}
+			return tree;
+		};
+
+		it('does not affect expressions that don\'t contain rest parameters', function () {
+			var source = '(+ a b c)';
+			var tree = processForRest(source);
+			expect(tree).toEqual(parse(source));
+		});
 
 		it('matches the rest token in a simple expression', function () {
 			var source = '(+ a...)';
@@ -238,8 +244,31 @@ describe('Expander', function () {
 			expect(tree).toEqual(parseAndRest(source, 1, 2, 'b'));
 		});
 
+		it('matches the rest tokens in a nested expression', function () {
+			var source = '(+ a b... (- c... d))';
+			var tree = processForRest(source);
+
+			expect(tree).toEqual(tokenP({
+				before: 1,
+				after: 1,
+				name: 'b'
+			},
+				tokenA('+'),
+				tokenA('a'),
+				tokenA('b...'),
+				tokenP({
+					before: 0,
+					after: 1,
+					name: 'c'
+				},
+					tokenA('-'),
+					tokenA('c...'),
+					tokenA('d')
+				)
+			));
+		});
+
 		// throws exception when there are more than one rest token
-		// does nothing on empty subexpressions
 	});
 
 	describe('expand', function () {
@@ -270,9 +299,19 @@ describe('Expander', function () {
 			expect(source).toEqual(parse('(- m (+ a (+ b c)) n)'));
 		});
 
-		it('rewrites an expression with a rest term', function () {
+		it('rewrites a simple expression with a rest term', function () {
+			var source = expand('(+ a b c)', '(+ x...)', '(- x...)');
+			expect(source).toEqual(parse('(- a b c)'));
+		});
+
+		it('rewrites a longer expression with a rest term', function () {
 			var source = expand('(+ a b c d e)', '(+ x y... z)', '(- z y... x)');
 			expect(source).toEqual(parse('(- e b c d a)'));
+		});
+
+		it('rewrites a nested expression with rest terms', function () {
+			var source = expand('(+ a b (+ c d))', '(+ x... (+ y...))', '(+ (+ x...) y...)');
+			expect(source).toEqual(parse('(+ (+ a b) c d)'));
 		});
 	});
 });
