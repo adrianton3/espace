@@ -5,6 +5,8 @@ describe('Expander', function () {
 		return espace.Parser.parse(tokenizer(text));
 	};
 
+	var processForRest = espace.Expander.processForRest;
+
 	describe('extract', function () {
 		var extract = espace.Expander.extract;
 
@@ -67,6 +69,28 @@ describe('Expander', function () {
 			expect(map).toBeTruthy();
 			expect(map.x).toEqual(parse('123'));
 			expect(map.y).toEqual(parse('(- a "asd")'));
+		});
+
+		it('extracts a rest parameter', function () {
+			var source = parse('(+ a b c)');
+			var pattern = parse('(+ x...)');
+			processForRest(pattern);
+
+			var map = extract(source, pattern);
+			expect(map).toBeTruthy();
+			expect(map.x).toEqual([parse('a'), parse('b'), parse('c')]);
+		});
+
+		it('extracts a rest parameter when surrounded by other tokens', function () {
+			var source = parse('(+ a b c d e)');
+			var pattern = parse('(+ x y... z)');
+			processForRest(pattern);
+
+			var map = extract(source, pattern);
+			expect(map).toBeTruthy();
+			expect(map.x).toEqual(parse('a'));
+			expect(map.y).toEqual([parse('b'), parse('c'), parse('d')]);
+			expect(map.z).toEqual(parse('e'));
 		});
 	});
 
@@ -138,6 +162,84 @@ describe('Expander', function () {
 			inject(source, map);
 			expect(source).toEqual(parse('(+ (- b c) (- f g))'));
 		});
+
+		it('injects a rest term into an expression', function () {
+			var source = parse('(+ a z...)');
+			processForRest(source);
+			var map = {
+				z: [parse('b'), parse('c')]
+			};
+			inject(source, map);
+			var expected = parse('(+ a b c)');
+			expected.rest = source.rest; // leftover rest; necessary for deepEquals
+			expect(source).toEqual(expected);
+		});
+	});
+
+	describe('processForRest', function () {
+		var processForRest = function (text) {
+			var tree = parse(text);
+			return espace.Expander.processForRest(tree);
+		};
+
+		var parseAndRest = function (text, before, after, name) {
+			var tree = parse(text);
+			tree.rest = {
+				before: before,
+				after: after,
+				name: name
+			};
+			return tree;
+		};
+
+//		var tokenA = function (value) {
+//			return {
+//				token: {
+//					type: 'alphanum',
+//					value: value
+//				}
+//			};
+//		};
+//
+//		var tokenP = function (rest) {
+//			var tree = {
+//				token: {
+//					type: '('
+//				},
+//				tree: Array.prototype.slice.call(arguments, 1)
+//			};
+//			if (rest) {
+//				tree.rest = rest;
+//			}
+//			return tree;
+//		};
+
+		it('matches the rest token in a simple expression', function () {
+			var source = '(+ a...)';
+			var tree = processForRest(source);
+			expect(tree).toEqual(parseAndRest(source, 0, 0, 'a'));
+		});
+
+		it('matches the rest token in a simple expression when it is not the first', function () {
+			var source = '(+ a b c...)';
+			var tree = processForRest(source);
+			expect(tree).toEqual(parseAndRest(source, 2, 0, 'c'));
+		});
+
+		it('matches the rest token in a simple expression when it is not the last', function () {
+			var source = '(+ a... b c)';
+			var tree = processForRest(source);
+			expect(tree).toEqual(parseAndRest(source, 0, 2, 'a'));
+		});
+
+		it('matches the rest token in a simple expression when it is not the first nor the last', function () {
+			var source = '(+ a b... c d)';
+			var tree = processForRest(source);
+			expect(tree).toEqual(parseAndRest(source, 1, 2, 'b'));
+		});
+
+		// throws exception when there are more than one rest token
+		// does nothing on empty subexpressions
 	});
 
 	describe('expand', function () {
@@ -166,6 +268,11 @@ describe('Expander', function () {
 		it('rewrites a complex expression', function () {
 			var source = expand('(- m (+ a b c) n)', '(+ x y z)', '(+ x (+ y z))');
 			expect(source).toEqual(parse('(- m (+ a (+ b c)) n)'));
+		});
+
+		it('rewrites an expression with a rest term', function () {
+			var source = expand('(+ a b c d e)', '(+ x y... z)', '(- z y... x)');
+			expect(source).toEqual(parse('(- e b c d a)'));
 		});
 	});
 });
