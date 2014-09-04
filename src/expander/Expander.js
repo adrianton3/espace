@@ -106,25 +106,34 @@
 
 	function inject(tree, map) {
 		function inject(tree) {
-			if (tree.token.type === 'alphanum') {
-				if (map[tree.token.value]) {
-					var replaceTree = map[tree.token.value];
-					if (!Array.isArray(replaceTree)) {
-						tree.token = replaceTree.token;
-						if (replaceTree.token.type === '(') {
-							tree.tree = replaceTree.tree;
-						}
+			for (var i = 1; i < tree.tree.length; i++) {
+				var child = tree.tree[i];
+
+				if (child.token.type === 'alphanum') {
+					var replaceTree = map[child.token.value];
+					if (Array.isArray(replaceTree)) {
+						insert(tree.tree, i, replaceTree);
+						i += replaceTree.length - 1;
+					} else if (replaceTree) {
+						tree.tree[i] = replaceTree;
 					}
-				}
-			} else if (tree.token.type === '(') {
-				tree.tree.forEach(inject);
-				if (tree.rest) {
-					insert(tree.tree, tree.rest.before + 1, map[tree.rest.name]);
+				} else if (child.token.type === '(') {
+					inject(child);
 				}
 			}
 		}
 
-		inject(tree);
+		if (tree.token.type === 'alphanum') {
+			var replaceTree = map[tree.token.value];
+			if (replaceTree) {
+				tree.token = replaceTree.token;
+				if (replaceTree.token.type === '(') {
+					tree.tree = replaceTree.tree;
+				}
+			}
+		} else if (tree.token.type === '(') {
+			inject(tree);
+		}
 	}
 
 	Expander.inject = inject;
@@ -132,10 +141,6 @@
 
 	function isRest(string) {
 		return string.length > 3 && string.substr(string.length - 3) === '...';
-	}
-
-	function extractRestName(string) {
-		return string.substr(0, string.length - 3);
 	}
 
 	function processForRest(tree) {
@@ -147,7 +152,7 @@
 						tree.rest = {
 							before: i - 1,
 							after: tree.tree.length - i - 1,
-							name: extractRestName(token.value)
+							name: token.value
 						};
 					} else {
 						traverse(tree.tree[i]);
@@ -163,6 +168,34 @@
 	Expander.processForRest = processForRest;
 
 
+	function validatePattern(tree) {
+		var set = {};
+
+		function traverse(tree) {
+			if (tree.token.type === '(') {
+				if (tree.tree.length > 0 && tree.tree[0].token.type !== 'alphanum') {
+					throw new Error('Tokens of type ' + tree.token.type + ' are not allowed in patterns');
+				}
+				for (var i = 1; i < tree.tree.length; i++) {
+					traverse(tree.tree[i]);
+				}
+			} else if (tree.token.type === 'alphanum') {
+				if (set[tree.token.value]) {
+					throw new Error('Variable ' + tree.token.value + ' already used in pattern');
+				} else {
+					set[tree.token.value] = true;
+				}
+			} else {
+				throw new Error('Tokens of type ' + tree.token.type + ' are not allowed in patterns');
+			}
+		}
+
+		traverse(tree);
+	}
+
+	Expander.validatePattern = validatePattern;
+
+
 	Expander.expand = function (source, pattern, substitute) {
 		processForRest(pattern);
 
@@ -170,12 +203,7 @@
 			var map = extract(source, pattern);
 			if (map) {
 				var newSubtree = deepClone(substitute);
-				processForRest(newSubtree);
 				inject(newSubtree, map);
-
-				// newSubtree is now polluted with extra .rest properties
-				// deepCLone will ignore them
-				newSubtree = deepClone(newSubtree);
 
 				// putting it back together
 				source.token = newSubtree.token;

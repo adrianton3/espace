@@ -7,6 +7,7 @@ describe('Expander', function () {
 
 	var processForRest = espace.Expander.processForRest;
 
+
 	describe('extract', function () {
 		var extract = espace.Expander.extract;
 
@@ -78,7 +79,7 @@ describe('Expander', function () {
 
 			var map = extract(source, pattern);
 			expect(map).toBeTruthy();
-			expect(map.x).toEqual([parse('a'), parse('b'), parse('c')]);
+			expect(map['x...']).toEqual([parse('a'), parse('b'), parse('c')]);
 		});
 
 		it('extracts a rest parameter when surrounded by other tokens', function () {
@@ -89,10 +90,11 @@ describe('Expander', function () {
 			var map = extract(source, pattern);
 			expect(map).toBeTruthy();
 			expect(map.x).toEqual(parse('a'));
-			expect(map.y).toEqual([parse('b'), parse('c'), parse('d')]);
+			expect(map['y...']).toEqual([parse('b'), parse('c'), parse('d')]);
 			expect(map.z).toEqual(parse('e'));
 		});
 	});
+
 
 	describe('deepClone', function () {
 		var deepClone = espace.Expander.deepClone;
@@ -128,6 +130,7 @@ describe('Expander', function () {
 			expect(deepClone(expression)).toEqual(expression);
 		});
 	});
+
 
 	describe('inject', function () {
 		var inject = espace.Expander.inject;
@@ -165,16 +168,26 @@ describe('Expander', function () {
 
 		it('injects a rest term into an expression', function () {
 			var source = parse('(+ a z...)');
-			processForRest(source);
 			var map = {
-				z: [parse('b'), parse('c')]
+				'z...': [parse('b'), parse('c')]
 			};
 			inject(source, map);
 			var expected = parse('(+ a b c)');
-			expected.rest = source.rest; // leftover rest; necessary for deepEquals
+			expect(source).toEqual(expected);
+		});
+
+		it('injects two rest terms into an expression', function () {
+			var source = parse('(+ x... y...)');
+			var map = {
+				'x...': [parse('a'), parse('b')],
+				'y...': [parse('c'), parse('d')]
+			};
+			inject(source, map);
+			var expected = parse('(+ a b c d)');
 			expect(source).toEqual(expected);
 		});
 	});
+
 
 	describe('processForRest', function () {
 		var processForRest = function (text) {
@@ -223,25 +236,25 @@ describe('Expander', function () {
 		it('matches the rest token in a simple expression', function () {
 			var source = '(+ a...)';
 			var tree = processForRest(source);
-			expect(tree).toEqual(parseAndRest(source, 0, 0, 'a'));
+			expect(tree).toEqual(parseAndRest(source, 0, 0, 'a...'));
 		});
 
 		it('matches the rest token in a simple expression when it is not the first', function () {
 			var source = '(+ a b c...)';
 			var tree = processForRest(source);
-			expect(tree).toEqual(parseAndRest(source, 2, 0, 'c'));
+			expect(tree).toEqual(parseAndRest(source, 2, 0, 'c...'));
 		});
 
 		it('matches the rest token in a simple expression when it is not the last', function () {
 			var source = '(+ a... b c)';
 			var tree = processForRest(source);
-			expect(tree).toEqual(parseAndRest(source, 0, 2, 'a'));
+			expect(tree).toEqual(parseAndRest(source, 0, 2, 'a...'));
 		});
 
 		it('matches the rest token in a simple expression when it is not the first nor the last', function () {
 			var source = '(+ a b... c d)';
 			var tree = processForRest(source);
-			expect(tree).toEqual(parseAndRest(source, 1, 2, 'b'));
+			expect(tree).toEqual(parseAndRest(source, 1, 2, 'b...'));
 		});
 
 		it('matches the rest tokens in a nested expression', function () {
@@ -251,7 +264,7 @@ describe('Expander', function () {
 			expect(tree).toEqual(tokenP({
 				before: 1,
 				after: 1,
-				name: 'b'
+				name: 'b...'
 			},
 				tokenA('+'),
 				tokenA('a'),
@@ -259,7 +272,7 @@ describe('Expander', function () {
 				tokenP({
 					before: 0,
 					after: 1,
-					name: 'c'
+					name: 'c...'
 				},
 					tokenA('-'),
 					tokenA('c...'),
@@ -270,6 +283,7 @@ describe('Expander', function () {
 
 		// throws exception when there are more than one rest token
 	});
+
 
 	describe('expand', function () {
 		var expand = function (source, pattern, replacement) {
