@@ -280,8 +280,35 @@ describe('Expander', function () {
 				)
 			));
 		});
+	});
 
-		// throws exception when there are more than one rest token
+
+	describe('validatePattern', function () {
+		var validate = function (source) {
+			var tree = parse(source);
+			return espace.Expander.validatePattern.bind(null, tree);
+		};
+
+		beforeEach(function () {
+			jasmine.addMatchers(meta.CustomMatchers);
+		});
+
+		it('throws an exception when a pattern contains non-identifiers', function () {
+			expect(validate('(+ a 123)'))
+				.toThrowWithMessage('Tokens of type number are not allowed in patterns');
+			expect(validate('(+ a "asd")'))
+				.toThrowWithMessage('Tokens of type string are not allowed in patterns');
+		});
+
+		it('throws an exception when a pattern contains the same variable twice', function () {
+			expect(validate('(+ a a)'))
+				.toThrowWithMessage('Variable "a" already used in pattern');
+		});
+
+		it('throws an exception when a pattern contains more rest variables on the same level', function () {
+			expect(validate('(+ a... (+ b c) d...)'))
+				.toThrowWithMessage('Pattern can contain at most one rest variable on a level');
+		});
 	});
 
 

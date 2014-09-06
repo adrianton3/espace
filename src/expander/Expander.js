@@ -172,25 +172,40 @@
 		var set = {};
 
 		function traverse(tree) {
-			if (tree.token.type === '(') {
-				if (tree.tree.length > 0 && tree.tree[0].token.type !== 'alphanum') {
-					throw new Error('Tokens of type ' + tree.token.type + ' are not allowed in patterns');
-				}
-				for (var i = 1; i < tree.tree.length; i++) {
-					traverse(tree.tree[i]);
-				}
-			} else if (tree.token.type === 'alphanum') {
-				if (set[tree.token.value]) {
-					throw new Error('Variable ' + tree.token.value + ' already used in pattern');
-				} else {
-					set[tree.token.value] = true;
-				}
-			} else {
+			if (tree.tree.length > 0 && tree.tree[0].token.type !== 'alphanum') {
 				throw new Error('Tokens of type ' + tree.token.type + ' are not allowed in patterns');
+			}
+
+			var rest = false;
+			for (var i = 1; i < tree.tree.length; i++) {
+				var subTree = tree.tree[i];
+
+				if (subTree.token.type === 'alphanum') {
+					if (set[subTree.token.value]) {
+						throw new Error('Variable "' + subTree.token.value + '" already used in pattern');
+					} else {
+						set[subTree.token.value] = true;
+					}
+
+					if (isRest(subTree.token.value)) {
+						if (rest) {
+							throw new Error('Pattern can contain at most one rest variable on a level');
+						}
+						rest = true;
+					}
+				} else if (subTree.token.type === '(') {
+					traverse(subTree);
+				} else {
+					throw new Error('Tokens of type ' + subTree.token.type + ' are not allowed in patterns');
+				}
 			}
 		}
 
-		traverse(tree);
+		if (tree.token.type === '(') {
+			traverse(tree);
+		} else {
+			throw new Error('Pattern must not be an atom');
+		}
 	}
 
 	Expander.validatePattern = validatePattern;
