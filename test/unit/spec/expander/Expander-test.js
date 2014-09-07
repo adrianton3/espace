@@ -293,6 +293,13 @@ describe('Expander', function () {
 			jasmine.addMatchers(meta.CustomMatchers);
 		});
 
+		it('throws an exception when a pattern expression starts with non-identifiers', function () {
+			expect(validate('(123 a b)'))
+				.toThrowWithMessage('Tokens of type number are not allowed in patterns');
+			expect(validate('("asd" a b)'))
+				.toThrowWithMessage('Tokens of type string are not allowed in patterns');
+		});
+
 		it('throws an exception when a pattern contains non-identifiers', function () {
 			expect(validate('(+ a 123)'))
 				.toThrowWithMessage('Tokens of type number are not allowed in patterns');

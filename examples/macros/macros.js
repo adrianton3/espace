@@ -53,6 +53,8 @@
 				throw new Error('Expected a macro definition');
 			}
 
+			espace.Expander.validatePattern(macrosTree.tree[0]);
+
 			espace.Expander.expand(
 				sourceTree,
 				macrosTree.tree[0],

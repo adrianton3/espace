@@ -173,7 +173,7 @@
 
 		function traverse(tree) {
 			if (tree.tree.length > 0 && tree.tree[0].token.type !== 'alphanum') {
-				throw new Error('Tokens of type ' + tree.token.type + ' are not allowed in patterns');
+				throw new Error('Tokens of type ' + tree.tree[0].token.type + ' are not allowed in patterns');
 			}
 
 			var rest = false;
