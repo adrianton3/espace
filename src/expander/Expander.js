@@ -104,7 +104,13 @@
 		return array;
 	}
 
-	function inject(tree, map) {
+	function isPrefixed(string) {
+		return string.length > 1 && string[0] === '_';
+	}
+
+	function inject(tree, map, suffixes) {
+		var suffixesThisRound = {};
+
 		function inject(tree) {
 			for (var i = 1; i < tree.tree.length; i++) {
 				var child = tree.tree[i];
@@ -116,6 +122,18 @@
 						i += replaceTree.length - 1;
 					} else if (replaceTree) {
 						tree.tree[i] = replaceTree;
+					} else if (isPrefixed(child.token.value)) {
+						if (!suffixesThisRound[child.token.value]) {
+							if (typeof suffixes[child.token.value] !== 'undefined') {
+								suffixes[child.token.value]++;
+							} else {
+								suffixes[child.token.value] = 0;
+							}
+
+							suffixesThisRound[child.token.value] = child.token.value + '_' + suffixes[child.token.value];
+						}
+
+						child.token.value = suffixesThisRound[child.token.value];
 					}
 				} else if (child.token.type === '(') {
 					inject(child);
@@ -211,14 +229,16 @@
 	Expander.validatePattern = validatePattern;
 
 
-	Expander.expand = function (source, pattern, substitute) {
+	Expander.expand = function (source, pattern, substitute, suffixes) {
 		processForRest(pattern);
+
+		suffixes = suffixes || {};
 
 		function traverse(source) {
 			var map = extract(source, pattern);
 			if (map) {
 				var newSubtree = deepClone(substitute);
-				inject(newSubtree, map);
+				inject(newSubtree, map, suffixes);
 
 				// putting it back together
 				source.token = newSubtree.token;

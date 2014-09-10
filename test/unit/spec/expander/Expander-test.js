@@ -133,7 +133,10 @@ describe('Expander', function () {
 
 
 	describe('inject', function () {
-		var inject = espace.Expander.inject;
+		var inject = function (source, map, suffixes) {
+			suffixes = suffixes || {};
+			espace.Expander.inject(source, map, suffixes);
+		};
 
 		it('injects a variable into a single atom', function () {
 			var source = parse('a');
@@ -184,6 +187,24 @@ describe('Expander', function () {
 			};
 			inject(source, map);
 			var expected = parse('(+ a b c d)');
+			expect(source).toEqual(expected);
+		});
+
+		it('generates a unique name for a prefixed identifier', function () {
+			var source = parse('(+ _a)');
+			var map = {};
+			var suffixes = {};
+			inject(source, map, suffixes);
+			var expected = parse('(+ _a_0)');
+			expect(source).toEqual(expected);
+		});
+
+		it('generates a unique name for a prefixed identifier and uses it consistently', function () {
+			var source = parse('(+ _a _a)');
+			var map = {};
+			var suffixes = {};
+			inject(source, map, suffixes);
+			var expected = parse('(+ _a_0 _a_0)');
 			expect(source).toEqual(expected);
 		});
 	});
@@ -360,6 +381,21 @@ describe('Expander', function () {
 		it('rewrites a nested expression with rest terms', function () {
 			var source = expand('(+ a b (+ c d))', '(+ x... (+ y...))', '(+ (+ x...) y...)');
 			expect(source).toEqual(parse('(+ (+ a b) c d)'));
+		});
+
+		it('generates a unique name for a prefixed identifier', function () {
+			var source = expand('(+ a b)', '(+ x y)', '(+ x _z)');
+			expect(source).toEqual(parse('(+ a _z_0)'));
+		});
+
+		it('generates a unique name for a prefixed identifier and uses it consistently', function () {
+			var source = expand('(+ a b)', '(+ x y)', '(+ _z _z)');
+			expect(source).toEqual(parse('(+ _z_0 _z_0)'));
+		});
+
+		it('generates a unique name for a prefixed identifier in different matches', function () {
+			var source = expand('(- (+ a b) (+ c d))', '(+ x y)', '(+ x _z)');
+			expect(source).toEqual(parse('(- (+ a _z_0) (+ c _z_1))'));
 		});
 	});
 });
