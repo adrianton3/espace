@@ -337,6 +337,11 @@ describe('Expander', function () {
 			expect(validate('(+ a... (+ b c) d...)'))
 				.toThrowWithMessage('Pattern can contain at most one rest variable on a level');
 		});
+
+		it('throws an exception when a pattern containes a prefixed variable', function () {
+			expect(validate('(+ a b _c)'))
+				.toThrowWithMessage('Pattern can not contain variables prefixed by \'_\'');
+		})
 	});
 
 

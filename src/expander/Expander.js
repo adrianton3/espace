@@ -199,6 +199,10 @@
 				var subTree = tree.tree[i];
 
 				if (subTree.token.type === 'alphanum') {
+					if (isPrefixed(subTree.token.value)) {
+						throw new Error('Pattern can not contain variables prefixed by \'_\'');
+					}
+
 					if (set[subTree.token.value]) {
 						throw new Error('Variable "' + subTree.token.value + '" already used in pattern');
 					} else {
