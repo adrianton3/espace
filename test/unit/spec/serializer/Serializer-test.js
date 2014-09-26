@@ -22,10 +22,10 @@ describe('Serializer', function () {
 		expect(serialize(tree)).toEqual('"asd"');
 	});
 
-	it('can serialize an alphanum', function () {
+	it('can serialize an identifier', function () {
 		var tree = {
 			token: {
-				type: 'alphanum',
+				type: 'identifier',
 				value: 'asd'
 			}
 		};
@@ -64,7 +64,7 @@ describe('Serializer', function () {
 			},
 			children: [{
 				token: {
-					type: 'alphanum',
+					type: 'identifier',
 					value: '+'
 				}
 			}, {

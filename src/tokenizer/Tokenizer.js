@@ -157,7 +157,7 @@
 			}
 		}
 
-		function alphanum(str) {
+		function identifier(str) {
 			str.setMarker();
 
 			var tmp = str.current();
@@ -166,7 +166,7 @@
 				tmp = str.current();
 			}
 
-	        return token('alphanum', str.getMarked(), str.getCoords());
+	        return token('identifier', str.getMarked(), str.getCoords());
 		}
 
 		function whitespace(str) {
@@ -206,7 +206,7 @@
 					tokens.push(tokenV(')', str.getCoords()));
 					str.advance();
 				} else if (current > ' ' && current <= '~') {
-					tokens.push(alphanum(str));
+					tokens.push(identifier(str));
 				} else {
 					var tmp = whitespace(str);
 					if (ws) { tokens.push(tmp); }

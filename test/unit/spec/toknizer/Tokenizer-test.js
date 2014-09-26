@@ -86,9 +86,9 @@ describe('Tokenizer', function () {
 		});
 	});
 
-    it('can tokenize an alphanum', function () {
+    it('can tokenize an identifier', function () {
         expect(chop('a1234')).toEqual([{
-			type: 'alphanum',
+			type: 'identifier',
 			value: 'a1234'
         }]);
     });

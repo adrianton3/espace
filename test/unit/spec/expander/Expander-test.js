@@ -229,7 +229,7 @@ describe('Expander', function () {
 		var tokenA = function (value) {
 			return {
 				token: {
-					type: 'alphanum',
+					type: 'identifier',
 					value: value
 				}
 			};

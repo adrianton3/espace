@@ -23,8 +23,8 @@
 					}
 				}
 
-				// first symbol must be the same alphanumeric in both cases
-				if (source.children[0].token.type !== 'alphanum' ||
+				// first symbol must be the same identifier in both cases
+				if (source.children[0].token.type !== 'identifier' ||
 					source.children[0].token.value !== pattern.children[0].token.value) {
 					return false;
 				}
@@ -115,7 +115,7 @@
 			for (var i = 1; i < tree.children.length; i++) {
 				var child = tree.children[i];
 
-				if (child.token.type === 'alphanum') {
+				if (child.token.type === 'identifier') {
 					var replaceTree = map[child.token.value];
 					if (Array.isArray(replaceTree)) {
 						insert(tree.children, i, replaceTree);
@@ -141,7 +141,7 @@
 			}
 		}
 
-		if (tree.token.type === 'alphanum') {
+		if (tree.token.type === 'identifier') {
 			var replaceTree = map[tree.token.value];
 			if (replaceTree) {
 				tree.token = replaceTree.token;
@@ -166,7 +166,7 @@
 			if (tree.token.type === '(') {
 				for (var i = 1; i < tree.children.length; i++) {
 					var token = tree.children[i].token;
-					if (token.type === 'alphanum' && isRest(token.value)) {
+					if (token.type === 'identifier' && isRest(token.value)) {
 						tree.rest = {
 							before: i - 1,
 							after: tree.children.length - i - 1,
@@ -190,7 +190,7 @@
 		var set = {};
 
 		function traverse(tree) {
-			if (tree.children.length > 0 && tree.children[0].token.type !== 'alphanum') {
+			if (tree.children.length > 0 && tree.children[0].token.type !== 'identifier') {
 				throw new Error('Tokens of type ' + tree.children[0].token.type + ' are not allowed in patterns');
 			}
 
@@ -198,7 +198,7 @@
 			for (var i = 1; i < tree.children.length; i++) {
 				var subTree = tree.children[i];
 
-				if (subTree.token.type === 'alphanum') {
+				if (subTree.token.type === 'identifier') {
 					if (isPrefixed(subTree.token.value)) {
 						throw new Error('Pattern can not contain variables prefixed by \'_\'');
 					}

@@ -13,7 +13,7 @@
 				return '"' + expression.token.value + '"';
 			case 'number':
 				return '' + expression.token.value;
-			case 'alphanum':
+			case 'identifier':
 				return expression.token.value;
 			case '(':
 				return '(' +
