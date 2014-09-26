@@ -33,7 +33,7 @@ describe('Parser', function () {
                 type: '(',
                 value: 123
             },
-            tree: []
+            children: []
         });
     });
 
@@ -53,7 +53,7 @@ describe('Parser', function () {
                 type: '(',
                 value: 123
             },
-            tree: [{
+			children: [{
 				token: {
 					type: 'x',
 					value: 234
@@ -81,7 +81,7 @@ describe('Parser', function () {
                 type: '(',
                 value: 123
             },
-            tree: [{
+			children: [{
 				token: {
 					type: 'x',
 					value: 234
@@ -114,12 +114,12 @@ describe('Parser', function () {
                 type: '(',
                 value: 123
             },
-            tree: [{
+			children: [{
                 token: {
                     type: '(',
                     value: 234
                 },
-                tree: []
+				children: []
             }]
         });
     });
@@ -146,12 +146,12 @@ describe('Parser', function () {
                 type: '(',
                 value: 123
             },
-            tree: [{
+			children: [{
                 token: {
                     type: '(',
                     value: 234
                 },
-                tree: [{
+				children: [{
 					token: {
 						type: 'x',
 						value: 345
@@ -195,7 +195,7 @@ describe('Parser', function () {
                 type: '(',
                 value: 11
             },
-            tree: [{
+			children: [{
 				token: {
 					type: 'a',
 					value: 22
@@ -205,7 +205,7 @@ describe('Parser', function () {
                     type: '(',
                     value: 33
                 },
-                tree: [{
+				children: [{
 					token: {
 						type: 'b',
 						value: 44
@@ -221,7 +221,7 @@ describe('Parser', function () {
                     type: '(',
                     value: 77
                 },
-                tree: []
+				children: []
             }]
         });
     });

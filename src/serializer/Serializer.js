@@ -17,7 +17,7 @@
 				return expression.token.value;
 			case '(':
 				return '(' +
-					expression.tree.map(function (subexpression) {
+					expression.children.map(function (subexpression) {
 						return Serializer.serialize(subexpression);
 					}).join(' ') +
 					')';

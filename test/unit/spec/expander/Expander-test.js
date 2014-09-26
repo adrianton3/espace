@@ -240,7 +240,7 @@ describe('Expander', function () {
 				token: {
 					type: '('
 				},
-				tree: Array.prototype.slice.call(arguments, 1)
+				children: Array.prototype.slice.call(arguments, 1)
 			};
 			if (rest) {
 				tree.rest = rest;

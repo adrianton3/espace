@@ -37,7 +37,7 @@ describe('Serializer', function () {
 			token: {
 				type: '('
 			},
-			tree: []
+			children: []
 		};
 		expect(serialize(tree)).toEqual('()');
 	});
@@ -47,11 +47,11 @@ describe('Serializer', function () {
 			token: {
 				type: '('
 			},
-			tree: [{
+			children: [{
 				token: {
 					type: '('
 				},
-				tree: []
+				children: []
 			}]
 		};
 		expect(serialize(tree)).toEqual('(())');
@@ -62,7 +62,7 @@ describe('Serializer', function () {
 			token: {
 				type: '('
 			},
-			tree: [{
+			children: [{
 				token: {
 					type: 'alphanum',
 					value: '+'

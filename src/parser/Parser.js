@@ -20,7 +20,7 @@
 
         var token = tokens[0];
         if (token.type === '(') {
-            currentLevel = { token: token, tree: [] };
+            currentLevel = { token: token, children: [] };
             root = currentLevel;
             stack.push(currentLevel);
         } else if (token.type === ')') {
@@ -41,15 +41,15 @@
 			}
 
             if (token.type === '(') {
-                var newLevel = { token: token, tree: [] };
-                currentLevel.tree.push(newLevel);
+                var newLevel = { token: token, children: [] };
+                currentLevel.children.push(newLevel);
                 currentLevel = newLevel;
                 stack.push(currentLevel);
             } else if (token.type === ')') {
 				stack.pop();
 				currentLevel = stack[stack.length - 1];
             } else {
-                currentLevel.tree.push({ token: token });
+                currentLevel.children.push({ token: token });
             }
         }
 

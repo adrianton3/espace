@@ -14,45 +14,45 @@
 
 				// just a precheck before we dive in
 				if (pattern.rest) {
-					if (source.tree.length < pattern.rest.before + 1 + pattern.rest.after) {
+					if (source.children.length < pattern.rest.before + 1 + pattern.rest.after) {
 						return false;
 					}
 				} else {
-					if (source.tree.length !== pattern.tree.length) {
+					if (source.children.length !== pattern.children.length) {
 						return false;
 					}
 				}
 
 				// first symbol must be the same alphanumeric in both cases
-				if (source.tree[0].token.type !== 'alphanum' ||
-					source.tree[0].token.value !== pattern.tree[0].token.value) {
+				if (source.children[0].token.type !== 'alphanum' ||
+					source.children[0].token.value !== pattern.children[0].token.value) {
 					return false;
 				}
 
 				// the rest have to match
 				if (pattern.rest) {
 					for (var i = 1; i <= pattern.rest.before; i++) {
-						if (!extract(source.tree[i], pattern.tree[i])) {
+						if (!extract(source.children[i], pattern.children[i])) {
 							return false;
 						}
 					}
 
-					map[pattern.rest.name] = source.tree.slice(
+					map[pattern.rest.name] = source.children.slice(
 							1 + pattern.rest.before,
-							source.tree.length - pattern.rest.after
+							source.children.length - pattern.rest.after
 						);
 
 					for (var i = 0; i < pattern.rest.after; i++) {
 						if (!extract(
-								source.tree[source.tree.length - pattern.rest.after + i],
-								pattern.tree[i + 1 + 1 + pattern.rest.before])
+								source.children[source.children.length - pattern.rest.after + i],
+								pattern.children[i + 1 + 1 + pattern.rest.before])
 							) {
 							return false;
 						}
 					}
 				} else {
-					for (var i = 1; i < pattern.tree.length; i++) {
-						if (!extract(source.tree[i], pattern.tree[i])) {
+					for (var i = 1; i < pattern.children.length; i++) {
+						if (!extract(source.children[i], pattern.children[i])) {
 							return false;
 						}
 					}
@@ -87,7 +87,7 @@
 		}
 
 		if (tree.token.type === '(') {
-			treeClone.tree = tree.tree.map(function (subtree) {
+			treeClone.children = tree.children.map(function (subtree) {
 				return deepClone(subtree);
 			});
 		}
@@ -112,16 +112,16 @@
 		var suffixesThisRound = {};
 
 		function inject(tree) {
-			for (var i = 1; i < tree.tree.length; i++) {
-				var child = tree.tree[i];
+			for (var i = 1; i < tree.children.length; i++) {
+				var child = tree.children[i];
 
 				if (child.token.type === 'alphanum') {
 					var replaceTree = map[child.token.value];
 					if (Array.isArray(replaceTree)) {
-						insert(tree.tree, i, replaceTree);
+						insert(tree.children, i, replaceTree);
 						i += replaceTree.length - 1;
 					} else if (replaceTree) {
-						tree.tree[i] = replaceTree;
+						tree.children[i] = replaceTree;
 					} else if (isPrefixed(child.token.value)) {
 						if (!suffixesThisRound[child.token.value]) {
 							if (typeof suffixes[child.token.value] !== 'undefined') {
@@ -146,7 +146,7 @@
 			if (replaceTree) {
 				tree.token = replaceTree.token;
 				if (replaceTree.token.type === '(') {
-					tree.tree = replaceTree.tree;
+					tree.children = replaceTree.children;
 				}
 			}
 		} else if (tree.token.type === '(') {
@@ -164,16 +164,16 @@
 	function processForRest(tree) {
 		function traverse(tree) {
 			if (tree.token.type === '(') {
-				for (var i = 1; i < tree.tree.length; i++) {
-					var token = tree.tree[i].token;
+				for (var i = 1; i < tree.children.length; i++) {
+					var token = tree.children[i].token;
 					if (token.type === 'alphanum' && isRest(token.value)) {
 						tree.rest = {
 							before: i - 1,
-							after: tree.tree.length - i - 1,
+							after: tree.children.length - i - 1,
 							name: token.value
 						};
 					} else {
-						traverse(tree.tree[i]);
+						traverse(tree.children[i]);
 					}
 				}
 			}
@@ -190,13 +190,13 @@
 		var set = {};
 
 		function traverse(tree) {
-			if (tree.tree.length > 0 && tree.tree[0].token.type !== 'alphanum') {
-				throw new Error('Tokens of type ' + tree.tree[0].token.type + ' are not allowed in patterns');
+			if (tree.children.length > 0 && tree.children[0].token.type !== 'alphanum') {
+				throw new Error('Tokens of type ' + tree.children[0].token.type + ' are not allowed in patterns');
 			}
 
 			var rest = false;
-			for (var i = 1; i < tree.tree.length; i++) {
-				var subTree = tree.tree[i];
+			for (var i = 1; i < tree.children.length; i++) {
+				var subTree = tree.children[i];
 
 				if (subTree.token.type === 'alphanum') {
 					if (isPrefixed(subTree.token.value)) {
@@ -246,11 +246,11 @@
 
 				// putting it back together
 				source.token = newSubtree.token;
-				source.tree = newSubtree.tree;
+				source.children = newSubtree.children;
 			}
 
 			if (source.token.type === '(') {
-				source.tree.forEach(traverse);
+				source.children.forEach(traverse);
 			}
 		}
 
