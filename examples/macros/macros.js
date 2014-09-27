@@ -49,16 +49,16 @@
 			var sourceTree = parse(sourceText);
 
 			var macrosTree = parse(macrosText);
-			if (macrosTree.token.type !== '(' || macrosTree.tree.length !== 2) {
+			if (macrosTree.token.type !== '(' || macrosTree.children.length !== 2) {
 				throw new Error('Expected a macro definition');
 			}
 
-			espace.Expander.validatePattern(macrosTree.tree[0]);
+			espace.Expander.validatePattern(macrosTree.children[0]);
 
 			espace.Expander.expand(
 				sourceTree,
-				macrosTree.tree[0],
-				macrosTree.tree[1]
+				macrosTree.children[0],
+				macrosTree.children[1]
 			);
 
 			outputEditor.setValue(serialize(sourceTree), 1);
