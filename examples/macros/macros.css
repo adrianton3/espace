@@ -21,6 +21,20 @@ p {
 
 .editor-container {
     float: left;
+    margin-bottom: 96px;
+}
+
+.instructions {
+    background-color: #272822;
+    clear: both;
+    margin: 0px;
+    padding: 4px;
+    font-size: small;
+}
+
+.link {
+    text-decoration: underline;
+    font-weight: bold;
 }
 
 #source-editor,#macros-editor,#output-editor {
