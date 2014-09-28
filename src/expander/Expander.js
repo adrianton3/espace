@@ -112,6 +112,23 @@
 		var suffixesThisRound = {};
 
 		function inject(tree) {
+			if (tree.children.length) {
+				var child = tree.children[0];
+				if (isPrefixed(child.token.value)) {
+					if (!suffixesThisRound[child.token.value]) {
+						if (typeof suffixes[child.token.value] !== 'undefined') {
+							suffixes[child.token.value]++;
+						} else {
+							suffixes[child.token.value] = 0;
+						}
+
+						suffixesThisRound[child.token.value] = child.token.value + '_' + suffixes[child.token.value];
+					}
+
+					child.token.value = suffixesThisRound[child.token.value];
+				}
+			}
+
 			for (var i = 1; i < tree.children.length; i++) {
 				var child = tree.children[i];
 

@@ -402,5 +402,10 @@ describe('Expander', function () {
 			var source = expand('(- (+ a b) (+ c d))', '(+ x y)', '(+ x _z)');
 			expect(source).toEqual(parse('(- (+ a _z_0) (+ c _z_1))'));
 		});
+
+		it('generates a unique name for a prefixed identifier even if it\'s the first child', function () {
+			var source = expand('(swap a b)', '(swap x y)', '(let (_tmp x) (set! x y) (set! y _tmp))');
+			expect(source).toEqual(parse('(let (_tmp_0 a) (set! a b) (set! b _tmp_0))'));
+		});
 	});
 });
