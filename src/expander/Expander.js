@@ -275,6 +275,5 @@
 	};
 
 
-	window.espace = window.espace || {};
-	window.espace.Expander = Expander;
+	espace.Expander = Expander;
 })();

@@ -50,6 +50,5 @@
         };
 	};
 
-    window.espace = window.espace || {};
-    window.espace.IterableString = IterableString;
+	espace.IterableString = IterableString;
 })();

@@ -219,6 +219,5 @@
 		};
 	}
 
-    window.espace = window.espace || {};
-    window.espace.Tokenizer = Tokenizer;
+	espace.Tokenizer = Tokenizer;
 })();

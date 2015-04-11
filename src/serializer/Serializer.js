@@ -24,6 +24,5 @@
 		}
 	};
 
-	window.espace = window.espace || {};
-	window.espace.Serializer = Serializer;
+	espace.Serializer = Serializer;
 })();

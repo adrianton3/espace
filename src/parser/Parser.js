@@ -60,6 +60,5 @@
         return root;
     };
 
-    window.espace = window.espace || {};
-    window.espace.Parser = Parser;
+	espace.Parser = Parser;
 })();
