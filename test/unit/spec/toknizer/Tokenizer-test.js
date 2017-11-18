@@ -2,7 +2,7 @@ describe('Tokenizer', function () {
 	'use strict';
 
 	var token = function (type, value) { return { type: type, value: value }; };
-	var chop = espace.Tokenizer();
+	var chop = espace.Tokenizer({ prefixes: '@#' });
 
     it('can tokenize an empty string', function () {
         expect(chop('')).toEqual([]);
@@ -247,4 +247,21 @@ describe('Tokenizer', function () {
 			});
 		});
 	});
+
+	describe('prefixes', () => {
+		const tokenP = token.bind(null, 'prefix');
+		const tokenI = token.bind(null, 'identifier');
+
+		it('can tokenize a prefix', () => {
+			expect(chop("#")).toEqual([tokenP('#')]);
+		});
+
+		it('can tokenize a prefix before an identifier', () => {
+			expect(chop("#asd")).toEqual([tokenP('#'), tokenI('asd')]);
+		});
+
+		it('can tokenize multiple prefixes', () => {
+			expect(chop("#@@")).toEqual([tokenP('#'), tokenP('@'), tokenP('@')]);
+		});
+	})
 });

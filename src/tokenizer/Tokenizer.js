@@ -12,6 +12,7 @@
 		var ws = !!options.whitespace;
 		var comments = !!options.comments;
 		var coords = !!options.coords;
+		const prefixes = options.prefixes || ''
 
 		var token, tokenV;
 		if (coords) {
@@ -204,6 +205,9 @@
 					str.advance();
 				} else if (current === ')') {
 					tokens.push(tokenV(')', str.getCoords()));
+					str.advance();
+				} else if (prefixes.includes(current)) {
+					tokens.push(token('prefix', current ,str.getCoords()));
 					str.advance();
 				} else if (current > ' ' && current <= '~') {
 					tokens.push(identifier(str));
