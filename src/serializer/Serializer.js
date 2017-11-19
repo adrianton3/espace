@@ -1,11 +1,17 @@
 (function () {
-	'use strict';
+	'use strict'
 
-	var Serializer = {};
-
-	Serializer.serialize = function (expression) {
+	function serialize (expression) {
 		if (!expression) {
 			return '';
+		}
+
+		if (expression.type === 'list') {
+			if (expression.token.type === 'prefix') {
+				return expression.token.value + serialize(expression.children[0])
+			} else {
+				return '(' + expression.children.map(serialize).join(' ') + ')'
+			}
 		}
 
 		switch (expression.token.type) {
@@ -15,14 +21,8 @@
 				return '' + expression.token.value;
 			case 'identifier':
 				return expression.token.value;
-			case '(':
-				return '(' +
-					expression.children.map(function (subexpression) {
-						return Serializer.serialize(subexpression);
-					}).join(' ') +
-					')';
 		}
-	};
+	}
 
-	espace.Serializer = Serializer;
+	espace.Serializer = { serialize };
 })();

@@ -3,82 +3,102 @@ describe('Serializer', function () {
 	var serialize = Serializer.serialize;
 
 	it('can serialize a number', function () {
-		var tree = {
+		const tree = {
+			type: 'atom',
 			token: {
 				type: 'number',
-				value: 123
-			}
-		};
-		expect(serialize(tree)).toEqual('123');
+				value: 123,
+			},
+		}
+
+		expect(serialize(tree)).toEqual('123')
 	});
 
 	it('can serialize a string', function () {
-		var tree = {
+		const tree = {
+			type: 'atom',
 			token: {
 				type: 'string',
-				value: 'asd'
-			}
-		};
-		expect(serialize(tree)).toEqual('"asd"');
+				value: 'asd',
+			},
+		}
+
+		expect(serialize(tree)).toEqual('"asd"')
 	});
 
 	it('can serialize an identifier', function () {
-		var tree = {
+		const tree = {
+			type: 'atom',
 			token: {
 				type: 'identifier',
-				value: 'asd'
-			}
-		};
-		expect(serialize(tree)).toEqual('asd');
+				value: 'asd',
+			},
+		}
+
+		expect(serialize(tree)).toEqual('asd')
 	});
 
 	it('can serialize an empty paren', function () {
-		var tree = {
+		const tree = {
+			type: 'list',
 			token: {
-				type: '('
+				type: 'open',
+				value: '(',
 			},
-			children: []
-		};
-		expect(serialize(tree)).toEqual('()');
+			children: [],
+		}
+
+		expect(serialize(tree)).toEqual('()')
 	});
 
 	it('can serialize a nested empty paren', function () {
-		var tree = {
+		const tree = {
+			type: 'list',
 			token: {
-				type: '('
+				type: 'open',
+				value: '(',
 			},
 			children: [{
+				type: 'list',
 				token: {
-					type: '('
+					type: 'open',
+					value: '(',
 				},
-				children: []
+				children: [],
 			}]
-		};
-		expect(serialize(tree)).toEqual('(())');
+		}
+
+		expect(serialize(tree)).toEqual('(())')
 	});
 
 	it('can serialize an expression', function () {
-		var tree = {
+		const tree = {
+			type: 'list',
 			token: {
-				type: '('
+				type: 'open',
+				value: '(',
 			},
 			children: [{
+				type: 'atom',
 				token: {
 					type: 'identifier',
-					value: '+'
-				}
+					value: '+',
+				},
 			}, {
+				type: 'atom',
 				token: {
 					type: 'number',
-					value: 123
-				}
+					value: 123,
+				},
 			}, {
+				type: 'atom',
 				token: {
 					type: 'number',
-					value: 456
-				}
+					value: 456,
+				},
 			}]
-		};
-		expect(serialize(tree)).toEqual('(+ 123 456)');
+		}
+
+		expect(serialize(tree)).toEqual('(+ 123 456)')
 	});
 });
