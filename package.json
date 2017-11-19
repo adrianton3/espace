@@ -2,9 +2,11 @@
   "name": "espace",
   "version": "0.0.0",
   "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-jshint": "~0.10.0",
-    "grunt-contrib-uglify": "^0.9.1",
-    "grunt-wrap": "^0.3.0"
+    "uglify-es": "^3.1.10"
+  },
+  "scripts": {
+    "uglify": "uglifyjs src/**/*.js > build/espace.min.unwrap.js",
+    "wrap": "cat tools/header.js build/espace.min.unwrap.js tools/footer.js > build/espace.min.js",
+    "build": "npm run uglify && npm run wrap && rm build/espace.min.unwrap.js"
   }
 }
