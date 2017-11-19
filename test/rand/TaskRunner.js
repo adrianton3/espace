@@ -1,32 +1,32 @@
 (function () {
-	'use strict';
+	'use strict'
 
-	var TaskRunner = {};
+	const TaskRunner = {}
 
-	var queue = [];
+	const queue = []
 
 	TaskRunner.push = function (task) {
-		queue.push(task);
-	};
+		queue.push(task)
+	}
 
 	TaskRunner.start = function (onComplete) {
-		var i = 0;
+		let i = 0
 
-		function loop() {
+		function loop () {
 			if (i >= queue.length) {
 				if (onComplete) {
-					onComplete();
+					onComplete()
 				}
 			} else {
-				queue[i]();
-				i++;
-				setTimeout(loop, 4);
+				queue[i]()
+				i++
+				setTimeout(loop, 4)
 			}
 		}
 
-		loop();
-	};
+		loop()
+	}
 
-	window.rand = window.rand || {};
-	window.rand.TaskRunner = TaskRunner;
-})();
+	window.rand = window.rand || {}
+	window.rand.TaskRunner = TaskRunner
+})()

@@ -1,54 +1,54 @@
 (function () {
-	'use strict';
+	'use strict'
 
-	function IterableString(string) {
-		this.string = string;
-		this.pointer = 0;
-		this.marker = 0;
+	function IterableString (string) {
+		this.string = string
+		this.pointer = 0
+		this.marker = 0
 
-		this.line = 1;
-		this.column = 1;
+		this.line = 1
+		this.column = 1
 	}
 
 	IterableString.prototype.advance = function () {
 		if (this.current() === '\n') {
-			this.line++;
-			this.column = 1;
+			this.line++
+			this.column = 1
 		} else {
-			this.column++;
+			this.column++
 		}
 
-		this.pointer++;
-	};
+		this.pointer++
+	}
 
 	IterableString.prototype.setMarker = function (offset) {
-		offset = offset || 0;
-		this.marker = this.pointer + offset;
-	};
+		offset = offset || 0
+		this.marker = this.pointer + offset
+	}
 
 	IterableString.prototype.current = function () {
-		return this.string.charAt(this.pointer);
-	};
+		return this.string.charAt(this.pointer)
+	}
 
 	IterableString.prototype.next = function () {
-		return this.string.charAt(this.pointer + 1);
-	};
+		return this.string.charAt(this.pointer + 1)
+	}
 
 	IterableString.prototype.hasNext = function () {
-		return this.pointer < this.string.length;
-	};
+		return this.pointer < this.string.length
+	}
 
 	IterableString.prototype.getMarked = function (offset) {
-		offset = offset || 0;
-		return this.string.substring(this.marker, this.pointer + offset);
-	};
+		offset = offset || 0
+		return this.string.substring(this.marker, this.pointer + offset)
+	}
 
 	IterableString.prototype.getCoords = function () {
 		return {
-            line: this.line,
-            column: this.column
-        };
-	};
+			line: this.line,
+			column: this.column,
+		}
+	}
 
-	espace.IterableString = IterableString;
-})();
+	espace.IterableString = IterableString
+})()

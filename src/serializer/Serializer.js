@@ -3,7 +3,7 @@
 
 	function serialize (expression) {
 		if (!expression) {
-			return '';
+			return ''
 		}
 
 		if (expression.type === 'list') {
@@ -15,14 +15,14 @@
 		}
 
 		switch (expression.token.type) {
-			case 'string':
-				return '"' + expression.token.value + '"';
-			case 'number':
-				return '' + expression.token.value;
-			case 'identifier':
-				return expression.token.value;
+		case 'string':
+			return '"' + expression.token.value + '"'
+		case 'number':
+			return '' + expression.token.value
+		case 'identifier':
+			return expression.token.value
 		}
 	}
 
-	espace.Serializer = { serialize };
-})();
+	espace.Serializer = { serialize }
+})()

@@ -1,15 +1,15 @@
 (function () {
-    'use strict';
+	'use strict'
 
-    var Parser = {};
+	const Parser = {}
 
-	function raise(token, message) {
-		var ex = new Error(message);
-		ex.coords = token.coords;
-		throw ex;
+	function raise (token, message) {
+		const ex = new Error(message)
+		ex.coords = token.coords
+		throw ex
 	}
 
-	function makeList(token) {
+	function makeList (token) {
 		if (token.type === 'open') {
 			return {
 				type: 'list',
@@ -31,46 +31,46 @@
 		}
 	}
 
-    Parser.parse = function (tokens) {
+	Parser.parse = function (tokens) {
 		if (!tokens.length) {
-			return null;
+			return null
 		}
 
-        var root;
-        var stack = [];
-        var currentLevel = null;
+		let root
+		const stack = []
+		let currentLevel = null
 
-        var token = tokens[0];
-        if (token.type === 'open' || token.type === 'prefix') {
-            currentLevel = makeList(token)
-            root = currentLevel;
-            stack.push(currentLevel);
-        } else if (token.type === 'closed') {
-            raise(token, 'Cannot start with )');
-        } else {
-            if (tokens.length > 1) {
-				raise(token, 'Unexpected token');
-            }
+		let token = tokens[0]
+		if (token.type === 'open' || token.type === 'prefix') {
+			currentLevel = makeList(token)
+			root = currentLevel
+			stack.push(currentLevel)
+		} else if (token.type === 'closed') {
+			raise(token, 'Cannot start with )')
+		} else {
+			if (tokens.length > 1) {
+				raise(token, 'Unexpected token')
+			}
 
-            return { type: 'atom', token }
-        }
+			return { type: 'atom', token }
+		}
 
-        for (var i = 1; i < tokens.length; i++) {
-            token = tokens[i];
+		for (let i = 1; i < tokens.length; i++) {
+			token = tokens[i]
 
 			if (!currentLevel) {
-				raise(token, 'Unexpected token');
+				raise(token, 'Unexpected token')
 			}
 
 			if (token.type === 'open' || token.type === 'prefix') {
 				const newLevel = makeList(token)
-                currentLevel.children.push(newLevel);
-                currentLevel = newLevel;
-                stack.push(currentLevel);
-            } else {
+				currentLevel.children.push(newLevel)
+				currentLevel = newLevel
+				stack.push(currentLevel)
+			} else {
 				if (token.type === 'closed') {
-					stack.pop();
-					currentLevel = stack[stack.length - 1];
+					stack.pop()
+					currentLevel = stack[stack.length - 1]
 				} else {
 					currentLevel.children.push({
 						type: 'atom',
@@ -79,18 +79,18 @@
 				}
 
 				while (currentLevel && currentLevel.token.type === 'prefix') {
-					stack.pop();
-					currentLevel = stack[stack.length - 1];
+					stack.pop()
+					currentLevel = stack[stack.length - 1]
 				}
 			}
-        }
-
-		if (stack.length) {
-			raise(token, 'Missing )');
 		}
 
-        return root;
-    };
+		if (stack.length) {
+			raise(token, 'Missing )')
+		}
 
-	espace.Parser = Parser;
-})();
+		return root
+	}
+
+	espace.Parser = Parser
+})()

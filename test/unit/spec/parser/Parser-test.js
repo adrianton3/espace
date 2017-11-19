@@ -1,6 +1,6 @@
 describe('Parser', function () {
-	var Parser = espace.Parser;
-	var parse = Parser.parse;
+	const Parser = espace.Parser
+	const parse = Parser.parse
 
 	const makeToken = (type) => (value) => ({ type, value })
 
@@ -43,70 +43,70 @@ describe('Parser', function () {
 	it('can parse nothing', function () {
 		const tokens = []
 
-		expect(parse(tokens)).toBeNull();
-	});
+		expect(parse(tokens)).toBeNull()
+	})
 
-    it('can parse an atom', function () {
-        const tokens = [makeNumber(123)]
+	it('can parse an atom', function () {
+		const tokens = [makeNumber(123)]
 
-        expect(parse(tokens)).toEqual(makeAst.atom('number', 123))
-    });
+		expect(parse(tokens)).toEqual(makeAst.atom('number', 123))
+	})
 
-    it('can parse an empty paren', function () {
-        const tokens = [
+	it('can parse an empty paren', function () {
+		const tokens = [
         	makeOpen('('),
 			makeClosed(')'),
 		]
 
-        expect(parse(tokens)).toEqual(makeAst.list('('))
-    });
+		expect(parse(tokens)).toEqual(makeAst.list('('))
+	})
 
-    it('can parse a one element paren', function () {
-        const tokens = [
+	it('can parse a one element paren', function () {
+		const tokens = [
         	makeOpen('('),
 			makeIdentifier('x'),
 			makeClosed(')'),
 		]
 
-        expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual(
         	makeAst.list('(', [
         		makeAst.atom('identifier', 'x'),
 			])
 		)
-    });
+	})
 
-    it('can parse a two element paren', function () {
-        const tokens = [
+	it('can parse a two element paren', function () {
+		const tokens = [
         	makeOpen('('),
 			makeIdentifier('x'),
 			makeIdentifier('y'),
 			makeClosed(')'),
 		]
 
-        expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual(
         	makeAst.list('(', [
 				makeAst.atom('identifier', 'x'),
 				makeAst.atom('identifier', 'y'),
 			])
 		)
-    });
+	})
 
-    it('can parse a nested empty paren', function () {
-        const tokens = [
+	it('can parse a nested empty paren', function () {
+		const tokens = [
         	makeOpen('('),
         	makeOpen('('),
 			makeClosed(')'),
 			makeClosed(')'),
 		]
 
-        expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual(
 			makeAst.list('(', [
-				makeAst.list('(', [])
+				makeAst.list('(', []),
 			])
 		)
-    });
+	})
 
-    it('can parse a one element nested paren', function () {
+	it('can parse a one element nested paren', function () {
 		const tokens = [
 			makeOpen('('),
 			makeOpen('('),
@@ -119,12 +119,12 @@ describe('Parser', function () {
 			makeAst.list('(', [
 				makeAst.list('(', [
 					makeAst.atom('identifier', 'x'),
-				])
+				]),
 			])
 		)
-    });
+	})
 
-    it('can parse a complex expression', function () {
+	it('can parse a complex expression', function () {
 		const tokens = [
 			makeOpen('('),
 			makeIdentifier('x'),
@@ -147,7 +147,7 @@ describe('Parser', function () {
 				makeAst.list('(', []),
 			])
 		)
-    });
+	})
 
 	it('can parse a prefixed number', () => {
 		const tokens = [
@@ -162,7 +162,7 @@ describe('Parser', function () {
 		)
 	})
 
-    it('can parse a prefixed (', () => {
+	it('can parse a prefixed (', () => {
 		const tokens = [
 			makePrefix('#'),
 			makeOpen('('),
@@ -196,14 +196,14 @@ describe('Parser', function () {
 	it('throws an exception when trying to parse just (', function () {
 		const tokens = [makeOpen('(')]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Missing )'));
-	});
+		expect(parse.bind(null, tokens)).toThrow(new Error('Missing )'))
+	})
 
 	it('throws an exception when starting with a )', function () {
 		const tokens = [makeClosed(')')]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Cannot start with )'));
-	});
+		expect(parse.bind(null, tokens)).toThrow(new Error('Cannot start with )'))
+	})
 
 	it('throws an exception when trying to parse ())', function () {
 		const tokens = [
@@ -212,8 +212,8 @@ describe('Parser', function () {
 			makeClosed(')'),
 		]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
-	});
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
+	})
 
 	it('throws an exception when given more than one atom', function () {
 		const tokens = [
@@ -221,8 +221,8 @@ describe('Parser', function () {
 			makeIdentifier('y'),
 		]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
-	});
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
+	})
 
 	it('throws an exception when parsing *()', function () {
 		const tokens = [
@@ -231,8 +231,8 @@ describe('Parser', function () {
 			makeClosed(')'),
 		]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
-	});
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
+	})
 
 	it('throws an exception when parsing ()*', function () {
 		const tokens = [
@@ -241,8 +241,8 @@ describe('Parser', function () {
 			makeIdentifier('*'),
 		]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
-	});
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
+	})
 
 	it('throws an exception when parsing ()()', function () {
 		const tokens = [
@@ -252,6 +252,6 @@ describe('Parser', function () {
 			makeClosed(')'),
 		]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
-	});
-});
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
+	})
+})
