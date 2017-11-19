@@ -228,17 +228,20 @@ describe('Expander', function () {
 
 		var tokenA = function (value) {
 			return {
+				type: 'atom',
 				token: {
 					type: 'identifier',
-					value: value
+					value,
 				}
 			};
 		};
 
 		var tokenP = function (rest) {
 			var tree = {
+				type: 'list',
 				token: {
-					type: '('
+					type: 'open',
+					value: '(',
 				},
 				children: Array.prototype.slice.call(arguments, 1)
 			};

@@ -7,8 +7,8 @@
 		var map = {};
 
 		function extract(source, pattern) {
-			if (pattern.token.type === '(') {
-				if (source.token.type !== '(') {
+			if (pattern.type === 'list') {
+				if (source.type !== 'list') {
 					return false;
 				}
 
@@ -77,16 +77,14 @@
 
 	function deepClone(tree) {
 		var treeClone = {
+			type: tree.type,
 			token: {
-				type: tree.token.type
-			}
+				type: tree.token.type,
+				value: tree.token.value,
+			},
 		};
 
-		if (tree.token.hasOwnProperty('value')) {
-			treeClone.token.value = tree.token.value;
-		}
-
-		if (tree.token.type === '(') {
+		if (tree.type === 'list') {
 			treeClone.children = tree.children.map(function (subtree) {
 				return deepClone(subtree);
 			});
@@ -152,7 +150,7 @@
 
 						child.token.value = suffixesThisRound[child.token.value];
 					}
-				} else if (child.token.type === '(') {
+				} else if (child.type === 'list') {
 					inject(child);
 				}
 			}
@@ -162,11 +160,11 @@
 			var replaceTree = map[tree.token.value];
 			if (replaceTree) {
 				tree.token = replaceTree.token;
-				if (replaceTree.token.type === '(') {
+				if (replaceTree.type === 'list') {
 					tree.children = replaceTree.children;
 				}
 			}
-		} else if (tree.token.type === '(') {
+		} else if (tree.type === 'list') {
 			inject(tree);
 		}
 	}
@@ -180,7 +178,7 @@
 
 	function processForRest(tree) {
 		function traverse(tree) {
-			if (tree.token.type === '(') {
+			if (tree.type === 'list') {
 				for (var i = 1; i < tree.children.length; i++) {
 					var token = tree.children[i].token;
 					if (token.type === 'identifier' && isRest(token.value)) {
@@ -232,7 +230,7 @@
 						}
 						rest = true;
 					}
-				} else if (subTree.token.type === '(') {
+				} else if (subTree.type === 'list') {
 					traverse(subTree);
 				} else {
 					throw new Error('Tokens of type ' + subTree.token.type + ' are not allowed in patterns');
@@ -240,7 +238,7 @@
 			}
 		}
 
-		if (tree.token.type === '(') {
+		if (tree.type === 'list') {
 			traverse(tree);
 		} else {
 			throw new Error('Pattern must not be an atom');
@@ -266,7 +264,7 @@
 				source.children = newSubtree.children;
 			}
 
-			if (source.token.type === '(') {
+			if (source.type === 'list') {
 				source.children.forEach(traverse);
 			}
 		}
