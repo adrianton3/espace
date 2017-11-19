@@ -12,7 +12,7 @@
 					result.pass = false
 					result.message = 'Expected function to throw an exception'
 				} catch (ex) {
-					if (ex.message != expected) {
+					if (ex.message !== expected) {
 						result.pass = false
 						result.message =
 							'Expected function to throw an exception with the message "' + expected + '"' +

@@ -75,15 +75,15 @@
 		function number (str) {
 			str.setMarker()
 
-			var tmp = str.current()
+			let tmp = str.current()
 			while (tmp >= '0' && tmp <= '9') {
 				str.advance()
 				tmp = str.current()
 			}
 
-			if (str.current() == '.') {
+			if (str.current() === '.') {
 				str.advance()
-				var tmp = str.current()
+				let tmp = str.current()
 				while (tmp >= '0' && tmp <= '9') {
 					str.advance()
 					tmp = str.current()
@@ -94,7 +94,7 @@
 				raise(str.getCoords(), "Unexpected character '" +
 					str.current() + "' after '" +
 					str.getMarked() + "'")
-	        }
+			}
 
 			return makeToken('number', +str.getMarked(), str.getCoords())
 		}
@@ -108,7 +108,7 @@
 				if (str.current() === '-' && str.next() === ';') {
 					str.advance()
 					str.advance()
-	                return makeToken('comment', str.getMarked(-2), str.getCoords())
+					return makeToken('comment', str.getMarked(-2), str.getCoords())
 				} else if (str.hasNext()) {
 					str.advance()
 				} else {
@@ -124,7 +124,7 @@
 			while (true) {
 				if (str.current() === '\n' || !str.hasNext()) {
 					str.advance()
-	                return makeToken('comment', str.getMarked(), str.getCoords())
+					return makeToken('comment', str.getMarked(), str.getCoords())
 				} else {
 					str.advance()
 				}
@@ -135,12 +135,12 @@
 			str.setMarker()
 
 			let tmp = str.current()
-			while (tmp > ' ' && tmp <= '~' && (tmp != '(' && tmp != ')')) {
+			while (tmp > ' ' && tmp <= '~' && (tmp !== '(' && tmp !== ')')) {
 				str.advance()
 				tmp = str.current()
 			}
 
-	        return makeToken('identifier', str.getMarked(), str.getCoords())
+			return makeToken('identifier', str.getMarked(), str.getCoords())
 		}
 
 		function whitespace (str) {
@@ -165,11 +165,11 @@
 					const next = str.next()
 
 					if (next === '-') {
-						var tmp = commentMulti(str)
+						const tmp = commentMulti(str)
 						if (comments) { tokens.push(tmp) }
 					} else {
-	                    var tmp = commentSingle(str)
-	                    if (comments) { tokens.push(tmp) }
+						const tmp = commentSingle(str)
+						if (comments) { tokens.push(tmp) }
 					}
 				} else if (current >= '0' && current <= '9') {
 					tokens.push(number(str))
@@ -185,7 +185,7 @@
 				} else if (current > ' ' && current <= '~') {
 					tokens.push(identifier(str))
 				} else {
-					var tmp = whitespace(str)
+					const tmp = whitespace(str)
 					if (ws) { tokens.push(tmp) }
 				}
 			}

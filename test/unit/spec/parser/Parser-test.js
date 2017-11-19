@@ -54,7 +54,7 @@ describe('Parser', function () {
 
 	it('can parse an empty paren', function () {
 		const tokens = [
-        	makeOpen('('),
+			makeOpen('('),
 			makeClosed(')'),
 		]
 
@@ -63,28 +63,28 @@ describe('Parser', function () {
 
 	it('can parse a one element paren', function () {
 		const tokens = [
-        	makeOpen('('),
+			makeOpen('('),
 			makeIdentifier('x'),
 			makeClosed(')'),
 		]
 
 		expect(parse(tokens)).toEqual(
-        	makeAst.list('(', [
-        		makeAst.atom('identifier', 'x'),
+			makeAst.list('(', [
+				makeAst.atom('identifier', 'x'),
 			])
 		)
 	})
 
 	it('can parse a two element paren', function () {
 		const tokens = [
-        	makeOpen('('),
+			makeOpen('('),
 			makeIdentifier('x'),
 			makeIdentifier('y'),
 			makeClosed(')'),
 		]
 
 		expect(parse(tokens)).toEqual(
-        	makeAst.list('(', [
+			makeAst.list('(', [
 				makeAst.atom('identifier', 'x'),
 				makeAst.atom('identifier', 'y'),
 			])
@@ -93,8 +93,8 @@ describe('Parser', function () {
 
 	it('can parse a nested empty paren', function () {
 		const tokens = [
-        	makeOpen('('),
-        	makeOpen('('),
+			makeOpen('('),
+			makeOpen('('),
 			makeClosed(')'),
 			makeClosed(')'),
 		]

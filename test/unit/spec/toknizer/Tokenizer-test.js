@@ -202,54 +202,54 @@ describe('Tokenizer', function () {
 			})
 
 			it('unescapes \\\"', function () {
-			    const string = "'\\\"'"
+				const string = "'\\\"'"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
 			it('unescapes \\\'', function () {
-			    const string = "'\\\''"
+				const string = "'\\\''"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
 			it('unescapes \"', function () {
-			    const string = "'\"'"
+				const string = "'\"'"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
 			it('unescapes a complex string', function () {
-			    const string = "'a\\ns\\tz\"dfg\"\"\"h'"
+				const string = "'a\\ns\\tz\"dfg\"\"\"h'"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 		})
 
 		describe('double-quoted string escaping', function () {
 			it('unescapes \\n', function () {
-			    const string = '"\\n"'
+				const string = '"\\n"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
 			it('unescapes \\\\', function () {
-			    const string = '"\\\\"'
+				const string = '"\\\\"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
 			it('unescapes \\\"', function () {
-			    const string = '"\\\""'
+				const string = '"\\\""'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
 			it('unescapes \\\'', function () {
-			    const string = '"\\\'"'
+				const string = '"\\\'"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
 			it('unescapes \'', function () {
-			    const string = '"\'"'
+				const string = '"\'"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
 			it('unescapes a complex string', function () {
-			    const string = '"a\\ns\\tz\'dfg\'\'\'h"'
+				const string = '"a\\ns\\tz\'dfg\'\'\'h"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 		})

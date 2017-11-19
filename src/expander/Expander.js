@@ -31,7 +31,7 @@
 
 				// the rest have to match
 				if (pattern.rest) {
-					for (var i = 1; i <= pattern.rest.before; i++) {
+					for (let i = 1; i <= pattern.rest.before; i++) {
 						if (!extract(source.children[i], pattern.children[i])) {
 							return false
 						}
@@ -42,7 +42,7 @@
 						source.children.length - pattern.rest.after
 					)
 
-					for (var i = 0; i < pattern.rest.after; i++) {
+					for (let i = 0; i < pattern.rest.after; i++) {
 						if (!extract(
 							source.children[source.children.length - pattern.rest.after + i],
 							pattern.children[i + 1 + 1 + pattern.rest.before])
@@ -51,7 +51,7 @@
 						}
 					}
 				} else {
-					for (var i = 1; i < pattern.children.length; i++) {
+					for (let i = 1; i < pattern.children.length; i++) {
 						if (!extract(source.children[i], pattern.children[i])) {
 							return false
 						}
@@ -111,7 +111,8 @@
 
 		function inject (tree) {
 			if (tree.children.length) {
-				var child = tree.children[0]
+				const child = tree.children[0]
+
 				if (isPrefixed(child.token.value)) {
 					if (!suffixesThisRound[child.token.value]) {
 						if (typeof suffixes[child.token.value] !== 'undefined') {
@@ -128,7 +129,7 @@
 			}
 
 			for (let i = 1; i < tree.children.length; i++) {
-				var child = tree.children[i]
+				const child = tree.children[i]
 
 				if (child.token.type === 'identifier') {
 					const replaceTree = map[child.token.value]
