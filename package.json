@@ -5,8 +5,8 @@
     "uglify-es": "^3.1.10"
   },
   "scripts": {
-    "uglify": "uglifyjs src/**/*.js > build/espace.min.unwrap.js",
-    "wrap": "cat tools/header.js build/espace.min.unwrap.js tools/footer.js > build/espace.min.js",
-    "build": "npm run uglify && npm run wrap && rm build/espace.min.unwrap.js"
+    "uglify": "uglifyjs src/**/*.js > tmp/espace.min.unwrap.js",
+    "wrap": "cat tools/header.js tmp/espace.min.unwrap.js tools/footer.js > tmp/espace.min.js",
+    "build": "npm run uglify && npm run wrap && rm tmp/espace.min.unwrap.js"
   }
 }
