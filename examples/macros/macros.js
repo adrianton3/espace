@@ -113,7 +113,7 @@
 			var sourceTree = parse(sourceText);
 
 			var macrosTree = parse(macrosText);
-			if (macrosTree.token.type !== '(' ||
+			if (macrosTree.type !== 'list' ||
 				macrosTree.children.length !== 3 ||
 				macrosTree.children[0].token.value !== 'syntax-rule') {
 				throw new Error('Expected a macro definition');
