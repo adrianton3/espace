@@ -12,38 +12,11 @@
 		var ws = !!options.whitespace;
 		var comments = !!options.comments;
 		var coords = !!options.coords;
-		const prefixes = options.prefixes || ''
+		const prefixes = options.prefixes || {}
 
-		var token, tokenV;
-		if (coords) {
-			token = function (type, value, coords) {
-				return {
-					type: type,
-					value: value,
-					coords: coords
-				};
-			};
-
-			tokenV = function (type, coords) {
-				return {
-					type: type,
-					coords: coords
-				};
-			};
-		} else {
-			token = function (type, value) {
-				return {
-					type: type,
-					value: value
-				};
-			};
-
-			tokenV = function (type) {
-				return {
-					type: type
-				};
-			};
-		}
+		const makeToken = coords ?
+			(type, value, coords) => ({ type, value, coords }) :
+			(type, value) => ({ type, value })
 
 		var escape = {
 			'\\': '\\',
@@ -65,7 +38,7 @@
 					}
 				} else if (str.current() === "'") {
 					str.advance();
-					return token('string', accumulated.join(''), str.getCoords());
+					return makeToken('string', accumulated.join(''), str.getCoords())
 				} else if (str.current() === '\n' || !str.hasNext()) {
 					raise(str.getCoords(), 'String not properly ended');
 				} else {
@@ -88,7 +61,7 @@
 					}
 				} else if (str.current() === '"') {
 					str.advance();
-					return token('string', accumulated.join(''), str.getCoords());
+					return makeToken('string', accumulated.join(''), str.getCoords())
 				} else if (str.current() === '\n' || !str.hasNext()) {
 					raise(str.getCoords(), 'String not properly ended');
 				} else {
@@ -123,7 +96,7 @@
 					str.getMarked() + "'");
 	        }
 
-			return token('number', +str.getMarked(), str.getCoords());
+			return makeToken('number', +str.getMarked(), str.getCoords())
 		}
 
 		function commentMulti(str) {
@@ -135,7 +108,7 @@
 				if (str.current() === '-' && str.next() === ';') {
 					str.advance();
 					str.advance();
-	                return token('comment', str.getMarked(-2), str.getCoords());
+	                return makeToken('comment', str.getMarked(-2), str.getCoords())
 				} else if (str.hasNext()) {
 					str.advance();
 				} else {
@@ -151,7 +124,7 @@
 			while (true) {
 				if (str.current() === '\n' || !str.hasNext()) {
 					str.advance();
-	                return token('comment', str.getMarked(), str.getCoords());
+	                return makeToken('comment', str.getMarked(), str.getCoords())
 				} else {
 					str.advance();
 				}
@@ -167,13 +140,13 @@
 				tmp = str.current();
 			}
 
-	        return token('identifier', str.getMarked(), str.getCoords());
+	        return makeToken('identifier', str.getMarked(), str.getCoords())
 		}
 
 		function whitespace(str) {
 			var tmp = str.current();
 			str.advance();
-			return token('whitespace', tmp, str.getCoords());
+			return makeToken('whitespace', tmp, str.getCoords())
 		}
 
 		return function chop(string) {
@@ -201,13 +174,13 @@
 				} else if (current >= '0' && current <= '9') {
 					tokens.push(number(str));
 				} else if (current === '(') {
-					tokens.push(tokenV('(', str.getCoords()));
+					tokens.push(makeToken('open', current, str.getCoords()))
 					str.advance();
 				} else if (current === ')') {
-					tokens.push(tokenV(')', str.getCoords()));
+					tokens.push(makeToken('closed', current, str.getCoords()))
 					str.advance();
-				} else if (prefixes.includes(current)) {
-					tokens.push(token('prefix', current ,str.getCoords()));
+				} else if (prefixes.hasOwnProperty(current)) {
+					tokens.push(makeToken('prefix', prefixes[current], str.getCoords()))
 					str.advance();
 				} else if (current > ' ' && current <= '~') {
 					tokens.push(identifier(str));

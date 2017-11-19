@@ -1,8 +1,21 @@
 describe('Tokenizer', function () {
 	'use strict';
 
-	var token = function (type, value) { return { type: type, value: value }; };
-	var chop = espace.Tokenizer({ prefixes: '@#' });
+	const makeToken = (type) => (value) => ({ type, value })
+
+	const makeNumber = makeToken('number')
+	const makeString = makeToken('string')
+	const makeIdentifier = makeToken('identifier')
+	const makePrefix = makeToken('prefix')
+	const makeOpen = makeToken('open')
+	const makeClosed = makeToken('closed')
+
+	const chop = espace.Tokenizer({
+		prefixes: {
+			'#': '#',
+			'@': '@',
+		},
+	})
 
     it('can tokenize an empty string', function () {
         expect(chop('')).toEqual([]);
@@ -94,12 +107,8 @@ describe('Tokenizer', function () {
     });
 
     it('can tokenize a paren', function () {
-        expect(chop('(')).toEqual([{
-			type: '('
-        }]);
-        expect(chop(')')).toEqual([{
-			type: ')'
-        }]);
+        expect(chop('(')).toEqual([makeOpen('(')])
+        expect(chop(')')).toEqual([makeClosed(')')])
     });
 
 	describe('comments', function () {
@@ -149,14 +158,12 @@ describe('Tokenizer', function () {
 	});
 
 	describe('strings', function () {
-		var tokenS = token.bind(null, 'string');
-
 		it('can tokenize a single-quoted empty string', function () {
-			expect(chop("''")).toEqual([tokenS('')]);
+			expect(chop("''")).toEqual([makeString('')]);
 		});
 
 		it('can tokenize a single-quoted string', function () {
-			expect(chop("'asd'")).toEqual([tokenS('asd')]);
+			expect(chop("'asd'")).toEqual([makeString('asd')]);
 		});
 
 		it('throws an exception on a non-terminated single-quoted string', function () {
@@ -168,11 +175,11 @@ describe('Tokenizer', function () {
 		});
 
 		it('can tokenize a double-quoted empty string', function () {
-			expect(chop('""')).toEqual([tokenS('')]);
+			expect(chop('""')).toEqual([makeString('')]);
 		});
 
 		it('can tokenize a double-quoted string', function () {
-			expect(chop('"asd"')).toEqual([tokenS('asd')]);
+			expect(chop('"asd"')).toEqual([makeString('asd')]);
 		});
 
 		it('throws an exception on a non-terminated double-quoted string', function () {
@@ -186,82 +193,79 @@ describe('Tokenizer', function () {
 		describe('single-quoted string escaping', function () {
 			it('unescapes \\n', function () {
 				var string = "'\\n'";
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes \\\\', function () {
 				var string = "'\\\\'";
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes \\\"', function () {
 			    var string = "'\\\"'";
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes \\\'', function () {
 			    var string = "'\\\''";
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes \"', function () {
 			    var string = "'\"'";
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes a complex string', function () {
 			    var string = "'a\\ns\\tz\"dfg\"\"\"h'";
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 		});
 
 		describe('double-quoted string escaping', function () {
 			it('unescapes \\n', function () {
 			    var string = '"\\n"';
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes \\\\', function () {
 			    var string = '"\\\\"';
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes \\\"', function () {
 			    var string = '"\\\""';
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes \\\'', function () {
 			    var string = '"\\\'"';
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes \'', function () {
 			    var string = '"\'"';
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 
 			it('unescapes a complex string', function () {
 			    var string = '"a\\ns\\tz\'dfg\'\'\'h"';
-				expect(chop(string)).toEqual([tokenS(eval(string))]);
+				expect(chop(string)).toEqual([makeString(eval(string))]);
 			});
 		});
 	});
 
 	describe('prefixes', () => {
-		const tokenP = token.bind(null, 'prefix');
-		const tokenI = token.bind(null, 'identifier');
-
 		it('can tokenize a prefix', () => {
-			expect(chop("#")).toEqual([tokenP('#')]);
+			expect(chop("#")).toEqual([makePrefix('#')]);
 		});
 
 		it('can tokenize a prefix before an identifier', () => {
-			expect(chop("#asd")).toEqual([tokenP('#'), tokenI('asd')]);
+			expect(chop("#asd")).toEqual([makePrefix('#'), makeIdentifier('asd')]);
 		});
 
 		it('can tokenize multiple prefixes', () => {
-			expect(chop("#@@")).toEqual([tokenP('#'), tokenP('@'), tokenP('@')]);
+			expect(chop("#@@")).toEqual([makePrefix('#'), makePrefix('@'), makePrefix('@')]);
 		});
 	})
 });

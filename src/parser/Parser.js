@@ -9,6 +9,28 @@
 		throw ex;
 	}
 
+	function makeList(token) {
+		if (token.type === 'open') {
+			return {
+				type: 'list',
+				token,
+				children: [],
+			}
+		}
+
+		return {
+			type: 'list',
+			token,
+			children: [{
+				type: 'atom',
+				token: {
+					type: 'identifier',
+					value: token.value,
+				},
+			}],
+		}
+	}
+
     Parser.parse = function (tokens) {
 		if (!tokens.length) {
 			return null;
@@ -19,18 +41,18 @@
         var currentLevel = null;
 
         var token = tokens[0];
-        if (token.type === '(') {
-            currentLevel = { token: token, children: [] };
+        if (token.type === 'open' || token.type === 'prefix') {
+            currentLevel = makeList(token)
             root = currentLevel;
             stack.push(currentLevel);
-        } else if (token.type === ')') {
+        } else if (token.type === 'closed') {
             raise(token, 'Cannot start with )');
         } else {
             if (tokens.length > 1) {
 				raise(token, 'Unexpected token');
             }
-            root = { token: token };
-            return root;
+
+            return { type: 'atom', token }
         }
 
         for (var i = 1; i < tokens.length; i++) {
@@ -40,17 +62,27 @@
 				raise(token, 'Unexpected token');
 			}
 
-            if (token.type === '(') {
-                var newLevel = { token: token, children: [] };
+			if (token.type === 'open' || token.type === 'prefix') {
+				const newLevel = makeList(token)
                 currentLevel.children.push(newLevel);
                 currentLevel = newLevel;
                 stack.push(currentLevel);
-            } else if (token.type === ')') {
-				stack.pop();
-				currentLevel = stack[stack.length - 1];
             } else {
-                currentLevel.children.push({ token: token });
-            }
+				if (token.type === 'closed') {
+					stack.pop();
+					currentLevel = stack[stack.length - 1];
+				} else {
+					currentLevel.children.push({
+						type: 'atom',
+						token,
+					})
+				}
+
+				while (currentLevel && currentLevel.token.type === 'prefix') {
+					stack.pop();
+					currentLevel = stack[stack.length - 1];
+				}
+			}
         }
 
 		if (stack.length) {

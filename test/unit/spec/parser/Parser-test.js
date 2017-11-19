@@ -2,298 +2,256 @@ describe('Parser', function () {
 	var Parser = espace.Parser;
 	var parse = Parser.parse;
 
+	const makeToken = (type) => (value) => ({ type, value })
+
+	const makeNumber = makeToken('number')
+	const makeString = makeToken('string')
+	const makeIdentifier = makeToken('identifier')
+	const makePrefix = makeToken('prefix')
+	const makeOpen = makeToken('open')
+	const makeClosed = makeToken('closed')
+
+	const makeAst = {
+		atom: (type, value) => ({
+			type: 'atom',
+			token: {
+				type,
+				value,
+			},
+		}),
+		list: (value, children = []) => ({
+			type: 'list',
+			token: {
+				type: 'open',
+				value,
+			},
+			children,
+		}),
+		prefix: (value, child) => ({
+			type: 'list',
+			token: {
+				type: 'prefix',
+				value,
+			},
+			children: [
+				makeAst.atom('identifier', value),
+				child,
+			],
+		}),
+	}
+
 	it('can parse nothing', function () {
-		var tokens = [];
+		const tokens = []
+
 		expect(parse(tokens)).toBeNull();
 	});
 
     it('can parse an atom', function () {
-        var tokens = [{
-            type: 'x',
-            value: 123
-        }];
-        expect(parse(tokens)).toEqual({
-			token: {
-				type: 'x',
-				value: 123
-			}
-		});
+        const tokens = [makeNumber(123)]
+
+        expect(parse(tokens)).toEqual(makeAst.atom('number', 123))
     });
 
     it('can parse an empty paren', function () {
-        var tokens = [{
-            type: '(',
-            value: 123
-        }, {
-            type: ')',
-            value: 234
-        }];
-        expect(parse(tokens)).toEqual({
-            token: {
-                type: '(',
-                value: 123
-            },
-            children: []
-        });
+        const tokens = [
+        	makeOpen('('),
+			makeClosed(')'),
+		]
+
+        expect(parse(tokens)).toEqual(makeAst.list('('))
     });
 
     it('can parse a one element paren', function () {
-        var tokens = [{
-            type: '(',
-            value: 123
-        }, {
-            type: 'x',
-            value: 234
-        }, {
-            type: ')',
-            value: 345
-        }];
-        expect(parse(tokens)).toEqual({
-            token: {
-                type: '(',
-                value: 123
-            },
-			children: [{
-				token: {
-					type: 'x',
-					value: 234
-				}
-            }]
-        });
+        const tokens = [
+        	makeOpen('('),
+			makeIdentifier('x'),
+			makeClosed(')'),
+		]
+
+        expect(parse(tokens)).toEqual(
+        	makeAst.list('(', [
+        		makeAst.atom('identifier', 'x'),
+			])
+		)
     });
 
     it('can parse a two element paren', function () {
-        var tokens = [{
-            type: '(',
-            value: 123
-        }, {
-            type: 'x',
-            value: 234
-        }, {
-            type: 'y',
-            value: 345
-        }, {
-            type: ')',
-            value: 456
-        }];
-        expect(parse(tokens)).toEqual({
-            token: {
-                type: '(',
-                value: 123
-            },
-			children: [{
-				token: {
-					type: 'x',
-					value: 234
-				}
-            }, {
-				token: {
-					type: 'y',
-					value: 345
-				}
-            }]
-        });
+        const tokens = [
+        	makeOpen('('),
+			makeIdentifier('x'),
+			makeIdentifier('y'),
+			makeClosed(')'),
+		]
+
+        expect(parse(tokens)).toEqual(
+        	makeAst.list('(', [
+				makeAst.atom('identifier', 'x'),
+				makeAst.atom('identifier', 'y'),
+			])
+		)
     });
 
     it('can parse a nested empty paren', function () {
-        var tokens = [{
-            type: '(',
-            value: 123
-        }, {
-            type: '(',
-            value: 234
-        }, {
-            type: ')',
-            value: 345
-        }, {
-            type: ')',
-            value: 456
-        }];
-        expect(parse(tokens)).toEqual({
-            token: {
-                type: '(',
-                value: 123
-            },
-			children: [{
-                token: {
-                    type: '(',
-                    value: 234
-                },
-				children: []
-            }]
-        });
+        const tokens = [
+        	makeOpen('('),
+        	makeOpen('('),
+			makeClosed(')'),
+			makeClosed(')'),
+		]
+
+        expect(parse(tokens)).toEqual(
+			makeAst.list('(', [
+				makeAst.list('(', [])
+			])
+		)
     });
 
     it('can parse a one element nested paren', function () {
-        var tokens = [{
-            type: '(',
-            value: 123
-        }, {
-            type: '(',
-            value: 234
-        }, {
-            type: 'x',
-            value: 345
-        }, {
-            type: ')',
-            value: 456
-        }, {
-            type: ')',
-            value: 567
-        }];
-        expect(parse(tokens)).toEqual({
-            token: {
-                type: '(',
-                value: 123
-            },
-			children: [{
-                token: {
-                    type: '(',
-                    value: 234
-                },
-				children: [{
-					token: {
-						type: 'x',
-						value: 345
-					}
-                }]
-            }]
-        });
+		const tokens = [
+			makeOpen('('),
+			makeOpen('('),
+			makeIdentifier('x'),
+			makeClosed(')'),
+			makeClosed(')'),
+		]
+
+		expect(parse(tokens)).toEqual(
+			makeAst.list('(', [
+				makeAst.list('(', [
+					makeAst.atom('identifier', 'x'),
+				])
+			])
+		)
     });
 
     it('can parse a complex expression', function () {
-        var tokens = [{
-            type: '(',
-            value: 11
-        }, {
-            type: 'a',
-            value: 22
-        }, {
-            type: '(',
-            value: 33
-        }, {
-            type: 'b',
-            value: 44
-        }, {
-            type: ')',
-            value: 55
-        }, {
-            type: 'c',
-            value: 66
-        }, {
-            type: '(',
-            value: 77
-        }, {
-            type: ')',
-            value: 88
-        }, {
-            type: ')',
-            value: 99
-        }];
-        expect(parse(tokens)).toEqual({
-            token: {
-                type: '(',
-                value: 11
-            },
-			children: [{
-				token: {
-					type: 'a',
-					value: 22
-				}
-        	}, {
-                token: {
-                    type: '(',
-                    value: 33
-                },
-				children: [{
-					token: {
-						type: 'b',
-						value: 44
-					}
-                }]
-            }, {
-				token: {
-					type: 'c',
-					value: 66
-				}
-        	}, {
-                token: {
-                    type: '(',
-                    value: 77
-                },
-				children: []
-            }]
-        });
+		const tokens = [
+			makeOpen('('),
+			makeIdentifier('x'),
+			makeOpen('('),
+			makeIdentifier('y'),
+			makeClosed(')'),
+			makeIdentifier('z'),
+			makeOpen('('),
+			makeClosed(')'),
+			makeClosed(')'),
+		]
+
+		expect(parse(tokens)).toEqual(
+			makeAst.list('(', [
+				makeAst.atom('identifier', 'x'),
+				makeAst.list('(', [
+					makeAst.atom('identifier', 'y'),
+				]),
+				makeAst.atom('identifier', 'z'),
+				makeAst.list('(', []),
+			])
+		)
     });
 
+	it('can parse a prefixed number', () => {
+		const tokens = [
+			makePrefix('#'),
+			makeIdentifier('x'),
+		]
+
+		expect(parse(tokens)).toEqual(
+			makeAst.prefix('#',
+				makeAst.atom('identifier', 'x'),
+			)
+		)
+	})
+
+    it('can parse a prefixed (', () => {
+		const tokens = [
+			makePrefix('#'),
+			makeOpen('('),
+			makeClosed(')'),
+		]
+
+		expect(parse(tokens)).toEqual(
+			makeAst.prefix('#',
+				makeAst.list('(', []),
+			)
+		)
+	})
+
+	it('can parse a doubly prefixed (', () => {
+		const tokens = [
+			makePrefix('@'),
+			makePrefix('#'),
+			makeOpen('('),
+			makeClosed(')'),
+		]
+
+		expect(parse(tokens)).toEqual(
+			makeAst.prefix('@',
+				makeAst.prefix('#',
+					makeAst.list('(', []),
+				)
+			)
+		)
+	})
+
 	it('throws an exception when trying to parse just (', function () {
-		var tokens = [{
-			type: '('
-		}];
+		const tokens = [makeOpen('(')]
+
 		expect(parse.bind(null, tokens)).toThrow(new Error('Missing )'));
 	});
 
 	it('throws an exception when starting with a )', function () {
-		var tokens = [{
-			type: ')'
-		}];
+		const tokens = [makeClosed(')')]
+
 		expect(parse.bind(null, tokens)).toThrow(new Error('Cannot start with )'));
 	});
 
 	it('throws an exception when trying to parse ())', function () {
-		var tokens = [{
-			type: '('
-		}, {
-			type: ')'
-		}, {
-			type: ')'
-		}];
+		const tokens = [
+			makeOpen('('),
+			makeClosed(')'),
+			makeClosed(')'),
+		]
+
 		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
 	});
 
 	it('throws an exception when given more than one atom', function () {
-		var tokens = [{
-			type: 'number',
-			value: 11
-		}, {
-			type: 'number',
-			value: 22
-		}];
+		const tokens = [
+			makeIdentifier('x'),
+			makeIdentifier('y'),
+		]
+
 		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
 	});
 
 	it('throws an exception when parsing *()', function () {
-		var tokens = [{
-			type: '*'
-		}, {
-			type: '('
-		}, {
-			type: ')'
-		}];
+		const tokens = [
+			makeIdentifier('*'),
+			makeOpen('('),
+			makeClosed(')'),
+		]
+
 		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
 	});
 
 	it('throws an exception when parsing ()*', function () {
-		var tokens = [{
-			type: '('
-		}, {
-			type: ')'
-		}, {
-			type: '*'
-		}];
+		const tokens = [
+			makeOpen('('),
+			makeClosed(')'),
+			makeIdentifier('*'),
+		]
+
 		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
 	});
 
 	it('throws an exception when parsing ()()', function () {
-		var tokens = [{
-			type: '('
-		}, {
-			type: ')'
-		}, {
-			type: '('
-		}, {
-			type: ')'
-		}];
+		const tokens = [
+			makeOpen('('),
+			makeClosed(')'),
+			makeOpen('('),
+			makeClosed(')'),
+		]
+
 		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'));
 	});
 });
