@@ -41,7 +41,7 @@ Usage
 ```javascript
 	var source = '(+ a b c)';
 	var pattern = '(+ x y z)';
-	var replaceTree = '(+ (+ x y) z)'
+	var replace = '(+ (+ x y) z)'
 	
 	var tokenizer = espace.Tokenizer();
 	var parse = function (source) {
