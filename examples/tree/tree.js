@@ -23,7 +23,13 @@
 
 
 	// getting a tokenizer
-	const tokenizer = espace.Tokenizer({ coords: true })
+	const tokenizer = espace.Tokenizer({
+		coords: true,
+		prefixes: {
+			'@': 'set',
+			'#': 'map',
+		},
+	})
 
 	function onInput () {
 		const inputText = inputEditor.getValue()
