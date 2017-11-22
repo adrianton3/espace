@@ -17,42 +17,44 @@ Usage
 ####Tokenizer
 
 ```javascript
-	var options = { 
-		whitespace: false
+	const options = { 
+		whitespace: false,
 		comments: false,
-		coords: true
-	};
-	var tokenizer = espace.Tokenizer(options);
+		coords: true,
+		prefixes: {
+			'#': 'map',
+		},
+	}
+	const tokenize = espace.Tokenizer(options)
 	
-	var source = '(fun 10 20)';
-	var tokens = tokenizer(source); //
+	const source = '(fun (a b) (+ a b))'
+	const tokens = tokenize(source) //
 ```
 
 ####Parser
 
 ```javascript
-	var source = '(fun 10 20)';
-	var tokens = espace.Tokenizer()(source);
-	var tree = espace.Parser.parse(tokens); //
+	const source = '(fun (a b) (+ a b))'
+	const tokens = espace.Tokenizer()(source)
+	const tree = espace.Parser.parse(tokens) //
 ```
 
 ####Macro expander
 
 ```javascript
-	var source = '(+ a b c)';
-	var pattern = '(+ x y z)';
-	var replace = '(+ (+ x y) z)'
+	const source = '(+ a b c)'
+	const pattern = '(+ x y z)'
+	const replace = '(+ (+ x y) z)'
 	
-	var tokenizer = espace.Tokenizer();
-	var parse = function (source) {
-		return espace.Parser.parse(tokenizer(source));
-	};
+	const tokenize = espace.Tokenizer()
+	const parse = (source) => 
+	    espace.Parser.parse(tokenize(source))
 	
-	var sourceTree = parse(source);
-	var patternTree = parse(pattern);
-	var replaceTree = parse(replace);
+	const sourceTree = parse(source)
+	const patternTree = parse(pattern)
+	const replaceTree = parse(replace)
 	
-	espace.Expander.expand(sourceTree, patternTree, replaceTree); //	
+	espace.Expander.expand(sourceTree, patternTree, replaceTree) //	
 ```
 
 *Pattern* can have more than one level:
