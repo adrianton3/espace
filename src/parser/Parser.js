@@ -31,6 +31,12 @@
 		}
 	}
 
+	function isMatching (open, closed) {
+		return (open === '(' && closed === ')') ||
+			(open === '[' && closed === ']') ||
+			(open === '{' && closed === '}')
+	}
+
 	Parser.parse = function (tokens) {
 		if (!tokens.length) {
 			return null
@@ -69,7 +75,11 @@
 				stack.push(currentLevel)
 			} else {
 				if (token.type === 'closed') {
-					stack.pop()
+					const lastLevel = stack.pop()
+					if (!isMatching(lastLevel.token.value, token.value)) {
+						raise(token, 'Paren types must match')
+					}
+
 					currentLevel = stack[stack.length - 1]
 				} else {
 					currentLevel.children.push({

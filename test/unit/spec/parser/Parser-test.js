@@ -106,6 +106,25 @@ describe('Parser', function () {
 		)
 	})
 
+	it('can parse nested parens of all types', function () {
+		const tokens = [
+			makeOpen('('),
+			makeOpen('['),
+			makeOpen('{'),
+			makeClosed('}'),
+			makeClosed(']'),
+			makeClosed(')'),
+		]
+
+		expect(parse(tokens)).toEqual(
+			makeAst.list('(', [
+				makeAst.list('[', [
+					makeAst.list('{', []),
+				])
+			])
+		)
+	})
+
 	it('can parse a one element nested paren', function () {
 		const tokens = [
 			makeOpen('('),
@@ -253,5 +272,14 @@ describe('Parser', function () {
 		]
 
 		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
+	})
+
+	it('throws an exception when parsing (]', function () {
+		const tokens = [
+			makeOpen('('),
+			makeClosed(']'),
+		]
+
+		expect(parse.bind(null, tokens)).toThrow(new Error('Paren types must match'))
 	})
 })

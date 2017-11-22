@@ -23,6 +23,12 @@ describe('Expander', function () {
 			expect(extract(source, pattern)).toBeNull()
 		})
 
+		it('rejects an expression with different parens', function () {
+			const source = parse('(+ a b)')
+			const pattern = parse('[+ a b]')
+			expect(extract(source, pattern)).toBeNull()
+		})
+
 		it('rejects when trying to match a atom with an expression', function () {
 			const source = parse('a')
 			const pattern = parse('(+ a b)')
@@ -38,6 +44,12 @@ describe('Expander', function () {
 		it('matches a complex expression', function () {
 			const source = parse('(+ a (- b c))')
 			const pattern = parse('(+ a b)')
+			expect(extract(source, pattern)).toBeTruthy()
+		})
+
+		it('matches a complex expression with multiple paren types', function () {
+			const source = parse('[+ a {- b c}]')
+			const pattern = parse('[+ a b]')
 			expect(extract(source, pattern)).toBeTruthy()
 		})
 
@@ -127,6 +139,11 @@ describe('Expander', function () {
 
 		it('clones a multi-level expression', function () {
 			const expression = parse('(a (b c) d)')
+			expect(deepClone(expression)).toEqual(expression)
+		})
+
+		it('clones a multi-level expression with multiple paren types', function () {
+			const expression = parse('(a [b {c}] d)')
 			expect(deepClone(expression)).toEqual(expression)
 		})
 	})

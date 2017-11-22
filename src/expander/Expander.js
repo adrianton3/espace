@@ -8,7 +8,7 @@
 
 		function extract (source, pattern) {
 			if (pattern.type === 'list') {
-				if (source.type !== 'list') {
+				if (source.type !== 'list' || source.token.value !== pattern.token.value) {
 					return false
 				}
 
@@ -65,7 +65,7 @@
 			}
 		}
 
-		if (extract(source, pattern, map)) {
+		if (extract(source, pattern)) {
 			return map
 		} else {
 			return null

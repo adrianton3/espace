@@ -90,7 +90,7 @@
 				}
 			}
 
-			if (') \n\t'.indexOf(str.current()) === -1) {
+			if (!')]} \n\t'.includes(str.current())) {
 				raise(str.getCoords(), "Unexpected character '" +
 					str.current() + "' after '" +
 					str.getMarked() + "'")
@@ -135,7 +135,12 @@
 			str.setMarker()
 
 			let tmp = str.current()
-			while (tmp > ' ' && tmp <= '~' && (tmp !== '(' && tmp !== ')')) {
+			while (
+				tmp > ' ' && tmp <= '~' &&
+				tmp !== '(' && tmp !== ')' &&
+				tmp !== '[' && tmp !== ']' &&
+				tmp !== '{' && tmp !== '}'
+			) {
 				str.advance()
 				tmp = str.current()
 			}
@@ -173,10 +178,10 @@
 					}
 				} else if (current >= '0' && current <= '9') {
 					tokens.push(number(str))
-				} else if (current === '(') {
+				} else if (current === '(' || current === '[' || current === '{') {
 					tokens.push(makeToken('open', current, str.getCoords()))
 					str.advance()
-				} else if (current === ')') {
+				} else if (current === ')' || current === ']' || current === '}') {
 					tokens.push(makeToken('closed', current, str.getCoords()))
 					str.advance()
 				} else if (prefixes.hasOwnProperty(current)) {
