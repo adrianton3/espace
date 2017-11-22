@@ -46,7 +46,12 @@
 				for (let i = 0; i < nSubexpressions; i++) {
 					parts.push(expression())
 				}
-				return '(' + parts.join(' ') + ')'
+
+				const partsString = parts.join(' ')
+
+				return Math.random() < 0.3 ? `(${partsString})`
+					: Math.random() < 0.5 ? `[${partsString}]`
+					: `{${partsString}}`
 			}
 		}
 

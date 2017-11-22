@@ -10,7 +10,11 @@
 			if (expression.token.type === 'prefix') {
 				return expression.token.value + serialize(expression.children[0])
 			} else {
-				return '(' + expression.children.map(serialize).join(' ') + ')'
+				const childrenString = expression.children.map(serialize).join(' ')
+
+				return expression.token.value === '(' ? `(${childrenString})`
+					: expression.token.value === '[' ? `[${childrenString}]`
+					: `{${childrenString}}`
 			}
 		}
 
