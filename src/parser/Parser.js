@@ -1,7 +1,5 @@
-(function () {
+(() => {
 	'use strict'
-
-	const Parser = {}
 
 	function raise (token, message) {
 		const ex = new Error(message)
@@ -37,7 +35,7 @@
 			(open === '{' && closed === '}')
 	}
 
-	Parser.parse = function (tokens) {
+	function parse (tokens) {
 		if (!tokens.length) {
 			return null
 		}
@@ -102,5 +100,7 @@
 		return root
 	}
 
-	espace.Parser = Parser
+	espace.Parser = {
+		parse
+	}
 })()

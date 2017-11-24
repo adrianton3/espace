@@ -1,4 +1,4 @@
-(function () {
+(() => {
 	'use strict'
 
 	function serialize (expression) {
@@ -28,5 +28,7 @@
 		}
 	}
 
-	espace.Serializer = { serialize }
+	espace.Serializer = {
+		serialize
+	}
 })()

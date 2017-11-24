@@ -1,4 +1,4 @@
-(function () {
+(() => {
 	'use strict'
 
 	function raise (coords, message) {
@@ -154,7 +154,7 @@
 			return makeToken('whitespace', tmp, str.getCoords())
 		}
 
-		return function chop (string) {
+		return (string) => {
 			const str = new espace.IterableString(string)
 			const tokens = []
 

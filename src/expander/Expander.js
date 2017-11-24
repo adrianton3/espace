@@ -1,7 +1,5 @@
-(function () {
+(() => {
 	'use strict'
-
-	const Expander = {}
 
 	function extract (source, pattern) {
 		const map = {}
@@ -44,8 +42,8 @@
 
 					for (let i = 0; i < pattern.rest.after; i++) {
 						if (!extract(
-							source.children[source.children.length - pattern.rest.after + i],
-							pattern.children[i + 1 + 1 + pattern.rest.before])
+								source.children[source.children.length - pattern.rest.after + i],
+								pattern.children[i + 1 + 1 + pattern.rest.before])
 						) {
 							return false
 						}
@@ -72,8 +70,6 @@
 		}
 	}
 
-	Expander.extract = extract
-
 
 	function deepClone (tree) {
 		const treeClone = {
@@ -92,8 +88,6 @@
 
 		return treeClone
 	}
-
-	Expander.deepClone = deepClone
 
 
 	function insert (array, start, subArray) {
@@ -170,8 +164,6 @@
 		}
 	}
 
-	Expander.inject = inject
-
 
 	function isRest (string) {
 		return string.length > 3 && string.substr(string.length - 3) === '...'
@@ -198,8 +190,6 @@
 		traverse(tree)
 		return tree
 	}
-
-	Expander.processForRest = processForRest
 
 
 	function validatePattern (tree) {
@@ -246,10 +236,8 @@
 		}
 	}
 
-	Expander.validatePattern = validatePattern
 
-
-	Expander.expand = function (source, pattern, substitute, suffixes) {
+	function expand (source, pattern, substitute, suffixes) {
 		processForRest(pattern)
 
 		suffixes = suffixes || {}
@@ -274,5 +262,12 @@
 	}
 
 
-	espace.Expander = Expander
+	espace.Expander = {
+		extract,
+		deepClone,
+		inject,
+		processForRest,
+		validatePattern,
+		expand,
+	}
 })()
