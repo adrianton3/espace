@@ -167,22 +167,6 @@ describe('Tokenizer', () => {
 	})
 
 	describe('strings', () => {
-		it('can tokenize a single-quoted empty string', () => {
-			expect(tokenize("''")).toEqual([makeString('')])
-		})
-
-		it('can tokenize a single-quoted string', () => {
-			expect(tokenize("'asd'")).toEqual([makeString('asd')])
-		})
-
-		it('throws an exception on a non-terminated single-quoted string', () => {
-			expect(tokenize.bind(null, "'")).toThrow(new Error('String not properly ended'))
-		})
-
-		it('throws an exception on a single-quoted string containing new-line', () => {
-			expect(tokenize.bind(null, "'a\nsd'")).toThrow(new Error('String not properly ended'))
-		})
-
 		it('can tokenize a double-quoted empty string', () => {
 			expect(tokenize('""')).toEqual([makeString('')])
 		})
@@ -199,39 +183,7 @@ describe('Tokenizer', () => {
 			expect(tokenize.bind(null, '"a\nsd"')).toThrow(new Error('String not properly ended'))
 		})
 
-		describe('single-quoted string escaping', () => {
-			it('unescapes \\n', () => {
-				const string = "'\\n'"
-				expect(tokenize(string)).toEqual([makeString(eval(string))])
-			})
-
-			it('unescapes \\\\', () => {
-				const string = "'\\\\'"
-				expect(tokenize(string)).toEqual([makeString(eval(string))])
-			})
-
-			it('unescapes \\\"', () => {
-				const string = "'\\\"'"
-				expect(tokenize(string)).toEqual([makeString(eval(string))])
-			})
-
-			it('unescapes \\\'', () => {
-				const string = "'\\\''"
-				expect(tokenize(string)).toEqual([makeString(eval(string))])
-			})
-
-			it('unescapes \"', () => {
-				const string = "'\"'"
-				expect(tokenize(string)).toEqual([makeString(eval(string))])
-			})
-
-			it('unescapes a complex string', () => {
-				const string = "'a\\ns\\tz\"dfg\"\"\"h'"
-				expect(tokenize(string)).toEqual([makeString(eval(string))])
-			})
-		})
-
-		describe('double-quoted string escaping', () => {
+		describe('string escaping', () => {
 			it('unescapes \\n', () => {
 				const string = '"\\n"'
 				expect(tokenize(string)).toEqual([makeString(eval(string))])
@@ -244,11 +196,6 @@ describe('Tokenizer', () => {
 
 			it('unescapes \\\"', () => {
 				const string = '"\\\""'
-				expect(tokenize(string)).toEqual([makeString(eval(string))])
-			})
-
-			it('unescapes \\\'', () => {
-				const string = '"\\\'"'
 				expect(tokenize(string)).toEqual([makeString(eval(string))])
 			})
 

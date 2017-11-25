@@ -25,8 +25,9 @@
 		const inputText = inputEditor.getValue()
 		try {
 			const tokens = espace.Tokenizer.tokenize(inputText, {
-				coords: true,
 				prefixes: {
+					'\'': 'quote',
+					':': 'symbol',
 					'@': 'set',
 					'#': 'map',
 				},

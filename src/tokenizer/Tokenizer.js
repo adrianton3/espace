@@ -21,34 +21,10 @@
 			'\\': '\\',
 			'n': '\n',
 			't': '\t',
-			"'": "'",
 			'"': '"',
 		}
 
-		function chopStringSingle (str) {
-			const accumulated = []
-			str.advance()
-
-			while (true) {
-				if (str.current() === '\\') {
-					str.advance()
-					if (escape[str.current()]) {
-						accumulated.push(escape[str.current()])
-					}
-				} else if (str.current() === "'") {
-					str.advance()
-					return makeToken('string', accumulated.join(''), str.getCoords())
-				} else if (str.current() === '\n' || !str.hasNext()) {
-					raise(str.getCoords(), 'String not properly ended')
-				} else {
-					accumulated.push(str.current())
-				}
-
-				str.advance()
-			}
-		}
-
-		function chopStringDouble (str) {
+		function chopString (str) {
 			const accumulated = []
 			str.advance()
 
@@ -162,10 +138,8 @@
 				const current = str.current()
 
 				// TODO: use a table instead
-				if (current === "'") {
-					tokens.push(chopStringSingle(str))
-				} else if (current === '"') {
-					tokens.push(chopStringDouble(str))
+				if (current === '"') {
+					tokens.push(chopString(str))
 				} else if (current === ';') {
 					if (str.next() === '-') {
 						const tmp = chopCommentMulti(str)
