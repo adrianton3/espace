@@ -7,8 +7,7 @@
 		throw exception
 	}
 
-	function Tokenizer (options) {
-		options = options || {}
+	function tokenize (string, options = {}) {
 		const whitespace = !!options.whitespace
 		const comments = !!options.comments
 		const coords = !!options.coords
@@ -155,7 +154,7 @@
 			return makeToken('whitespace', tmp, str.getCoords())
 		}
 
-		return (string) => {
+		return (() => {
 			const str = new espace.IterableString(string)
 			const tokens = []
 
@@ -205,8 +204,10 @@
 			// tokens.push(tokenV('END', str.getCoords()));
 
 			return tokens
-		}
+		})()
 	}
 
-	espace.Tokenizer = Tokenizer
+	espace.Tokenizer = {
+		tokenize,
+	}
 })()

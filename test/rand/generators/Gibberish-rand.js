@@ -18,7 +18,7 @@
 	}
 
 	const nTest = 100
-	let tokenizer
+	const { tokenize } = espace.Tokenizer
 
 	function repeat (times, callback) {
 		for (let i = 0; i < times; i++) {
@@ -28,14 +28,14 @@
 
 	rand.TaskRunner.push(function () {
 		rand.HtmlReporter.describe('Random strings', {}, nTest)
-		tokenizer = espace.Tokenizer()
 	})
+
 	repeat(nTest, function () {
 		rand.TaskRunner.push(function () {
 			const gibberish = generateGibberish()
 
 			try {
-				const tokens = tokenizer(gibberish)
+				const tokens = tokenize(gibberish)
 				const tree = espace.Parser.parse(tokens)
 				const serializedExpression = espace.Serializer.serialize(tree)
 			} catch (e) {

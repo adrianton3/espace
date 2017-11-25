@@ -7,7 +7,6 @@
 	].join('\n')
 
 
-	// setting up the editors
 	const inputEditor = ace.edit('input-editor')
 	inputEditor.setTheme('ace/theme/monokai')
 	inputEditor.setFontSize(18)
@@ -22,19 +21,17 @@
 	outputEditor.setFontSize(18)
 
 
-	// getting a tokenizer
-	const tokenizer = espace.Tokenizer({
-		coords: true,
-		prefixes: {
-			'@': 'set',
-			'#': 'map',
-		},
-	})
-
 	function onInput () {
 		const inputText = inputEditor.getValue()
 		try {
-			const tokens = tokenizer(inputText)
+			const tokens = espace.Tokenizer.tokenize(inputText, {
+				coords: true,
+				prefixes: {
+					'@': 'set',
+					'#': 'map',
+				},
+			})
+
 			const tree = espace.Parser.parse(tokens)
 
 			outputEditor.setValue(JSON.stringify(tree, undefined, 2), 1)

@@ -101,6 +101,6 @@
 	}
 
 	espace.Parser = {
-		parse
+		parse,
 	}
 })()

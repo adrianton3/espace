@@ -29,6 +29,6 @@
 	}
 
 	espace.Serializer = {
-		serialize
+		serialize,
 	}
 })()

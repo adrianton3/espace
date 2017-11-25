@@ -96,15 +96,12 @@
 	setupEditors()
 	setupLinks()
 
-	// getting a tokenizer
-	const tokenizer = espace.Tokenizer()
-
 	function onInput () {
 		const sourceText = sourceEditor.getValue()
 		const macrosText = macrosEditor.getValue()
 
 		const parse = function (text) {
-			return espace.Parser.parse(tokenizer(text))
+			return espace.Parser.parse(espace.Tokenizer.tokenize(text))
 		}
 
 		const serialize = espace.Serializer.serialize

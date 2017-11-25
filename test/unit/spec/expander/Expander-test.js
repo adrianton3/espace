@@ -1,9 +1,8 @@
 'use strict'
 
 describe('Expander', () => {
-	const tokenizer = espace.Tokenizer()
-
-	const parse = (text) => espace.Parser.parse(tokenizer(text))
+	const parse = (text) =>
+		espace.Parser.parse(espace.Tokenizer.tokenize(text))
 
 
 	describe('extract', () => {

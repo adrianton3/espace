@@ -81,17 +81,17 @@
 	}]
 
 	const nTest = 10
-	let tokenizer
+	const { tokenize } = espace.Tokenizer
 
 	configs.forEach(function (config) {
 		rand.TaskRunner.push(function () {
 			rand.HtmlReporter.describe('Well formed expressions', config, nTest)
-			tokenizer = espace.Tokenizer()
 		})
+
 		repeat(nTest, function () {
 			rand.TaskRunner.push(function () {
 				const expression = generateExpression(config)
-				const tokens = tokenizer(expression)
+				const tokens = tokenize(expression)
 				const tree = espace.Parser.parse(tokens)
 				const serializedExpression = espace.Serializer.serialize(tree)
 

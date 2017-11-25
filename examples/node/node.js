@@ -1,6 +1,6 @@
 'use strict'
 
-const espace = require('../../build/espace.min.js')
+const { Tokenizer, Parser } = require('../../build/espace.min.js')
 
 const SAMPLE_TEXT = [
 	'(fun double (n)',
@@ -8,9 +8,8 @@ const SAMPLE_TEXT = [
 ].join('\n')
 
 
-const tokenizer = espace.Tokenizer({ coords: true })
-const tokens = tokenizer(SAMPLE_TEXT)
-const tree = espace.Parser.parse(tokens)
+const tokens = Tokenizer.tokenize(SAMPLE_TEXT, { coords: true })
+const tree = Parser.parse(tokens)
 
 const pretty = JSON.stringify(tree, undefined, 2)
 
