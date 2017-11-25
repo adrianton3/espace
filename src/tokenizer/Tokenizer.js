@@ -2,14 +2,14 @@
 	'use strict'
 
 	function raise (coords, message) {
-		const ex = new Error(message)
-		ex.coords = coords
-		throw ex
+		const exception = new Error(message)
+		exception.coords = coords
+		throw exception
 	}
 
 	function Tokenizer (options) {
 		options = options || {}
-		const ws = !!options.whitespace
+		const whitespace = !!options.whitespace
 		const comments = !!options.comments
 		const coords = !!options.coords
 		const prefixes = options.prefixes || {}
@@ -26,7 +26,7 @@
 			'"': '"',
 		}
 
-		function stringSingle (str) {
+		function chopStringSingle (str) {
 			const accumulated = []
 			str.advance()
 
@@ -49,7 +49,7 @@
 			}
 		}
 
-		function stringDouble (str) {
+		function chopStringDouble (str) {
 			const accumulated = []
 			str.advance()
 
@@ -72,7 +72,7 @@
 			}
 		}
 
-		function number (str) {
+		function chopNumber (str) {
 			str.setMarker()
 
 			let tmp = str.current()
@@ -91,15 +91,16 @@
 			}
 
 			if (!')]} \n\t'.includes(str.current())) {
-				raise(str.getCoords(), "Unexpected character '" +
-					str.current() + "' after '" +
-					str.getMarked() + "'")
+				raise(
+					str.getCoords(),
+					`Unexpected character '${str.current()}' after '${str.getMarked()}'`,
+				)
 			}
 
-			return makeToken('number', +str.getMarked(), str.getCoords())
+			return makeToken('number', Number(str.getMarked()), str.getCoords())
 		}
 
-		function commentMulti (str) {
+		function chopCommentMulti (str) {
 			str.setMarker(2)
 			str.advance()
 			str.advance()
@@ -117,7 +118,7 @@
 			}
 		}
 
-		function commentSingle (str) {
+		function chopCommentSingle (str) {
 			str.setMarker(1)
 			str.advance()
 
@@ -131,7 +132,7 @@
 			}
 		}
 
-		function identifier (str) {
+		function chopIdentifier (str) {
 			str.setMarker()
 
 			let tmp = str.current()
@@ -148,7 +149,7 @@
 			return makeToken('identifier', str.getMarked(), str.getCoords())
 		}
 
-		function whitespace (str) {
+		function chopWhitespace (str) {
 			const tmp = str.current()
 			str.advance()
 			return makeToken('whitespace', tmp, str.getCoords())
@@ -163,21 +164,25 @@
 
 				// TODO: use a table instead
 				if (current === "'") {
-					tokens.push(stringSingle(str))
+					tokens.push(chopStringSingle(str))
 				} else if (current === '"') {
-					tokens.push(stringDouble(str))
+					tokens.push(chopStringDouble(str))
 				} else if (current === ';') {
-					const next = str.next()
+					if (str.next() === '-') {
+						const tmp = chopCommentMulti(str)
 
-					if (next === '-') {
-						const tmp = commentMulti(str)
-						if (comments) { tokens.push(tmp) }
+						if (comments) {
+							tokens.push(tmp)
+						}
 					} else {
-						const tmp = commentSingle(str)
-						if (comments) { tokens.push(tmp) }
+						const tmp = chopCommentSingle(str)
+
+						if (comments) {
+							tokens.push(tmp)
+						}
 					}
 				} else if (current >= '0' && current <= '9') {
-					tokens.push(number(str))
+					tokens.push(chopNumber(str))
 				} else if (current === '(' || current === '[' || current === '{') {
 					tokens.push(makeToken('open', current, str.getCoords()))
 					str.advance()
@@ -188,10 +193,12 @@
 					tokens.push(makeToken('prefix', prefixes[current], str.getCoords()))
 					str.advance()
 				} else if (current > ' ' && current <= '~') {
-					tokens.push(identifier(str))
+					tokens.push(chopIdentifier(str))
 				} else {
-					const tmp = whitespace(str)
-					if (ws) { tokens.push(tmp) }
+					const tmp = chopWhitespace(str)
+					if (whitespace) {
+						tokens.push(tmp)
+					}
 				}
 			}
 

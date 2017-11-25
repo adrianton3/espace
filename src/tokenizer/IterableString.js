@@ -21,8 +21,7 @@
 		this.pointer++
 	}
 
-	IterableString.prototype.setMarker = function (offset) {
-		offset = offset || 0
+	IterableString.prototype.setMarker = function (offset = 0) {
 		this.marker = this.pointer + offset
 	}
 
@@ -38,8 +37,7 @@
 		return this.pointer < this.string.length
 	}
 
-	IterableString.prototype.getMarked = function (offset) {
-		offset = offset || 0
+	IterableString.prototype.getMarked = function (offset = 0) {
 		return this.string.substring(this.marker, this.pointer + offset)
 	}
 

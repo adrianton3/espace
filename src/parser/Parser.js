@@ -2,9 +2,9 @@
 	'use strict'
 
 	function raise (token, message) {
-		const ex = new Error(message)
-		ex.coords = token.coords
-		throw ex
+		const exception = new Error(message)
+		exception.coords = token.coords
+		throw exception
 	}
 
 	function makeList (token) {
@@ -93,7 +93,7 @@
 			}
 		}
 
-		if (stack.length) {
+		if (stack.length > 0) {
 			raise(token, 'Missing )')
 		}
 

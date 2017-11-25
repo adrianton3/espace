@@ -1,8 +1,9 @@
-describe('Serializer', function () {
-	const Serializer = window.espace.Serializer
-	const serialize = Serializer.serialize
+'use strict'
 
-	it('can serialize a number', function () {
+describe('Serializer', () => {
+	const { serialize } = espace.Serializer
+
+	it('can serialize a number', () => {
 		const tree = {
 			type: 'atom',
 			token: {
@@ -14,7 +15,7 @@ describe('Serializer', function () {
 		expect(serialize(tree)).toEqual('123')
 	})
 
-	it('can serialize a string', function () {
+	it('can serialize a string', () => {
 		const tree = {
 			type: 'atom',
 			token: {
@@ -26,7 +27,7 @@ describe('Serializer', function () {
 		expect(serialize(tree)).toEqual('"asd"')
 	})
 
-	it('can serialize an identifier', function () {
+	it('can serialize an identifier', () => {
 		const tree = {
 			type: 'atom',
 			token: {
@@ -38,7 +39,7 @@ describe('Serializer', function () {
 		expect(serialize(tree)).toEqual('asd')
 	})
 
-	it('can serialize an empty paren', function () {
+	it('can serialize an empty paren', () => {
 		const tree = {
 			type: 'list',
 			token: {
@@ -51,7 +52,7 @@ describe('Serializer', function () {
 		expect(serialize(tree)).toEqual('()')
 	})
 
-	it('can serialize a nested empty paren', function () {
+	it('can serialize a nested empty paren', () => {
 		const tree = {
 			type: 'list',
 			token: {
@@ -71,7 +72,7 @@ describe('Serializer', function () {
 		expect(serialize(tree)).toEqual('(())')
 	})
 
-	it('can serialize an expression', function () {
+	it('can serialize an expression', () => {
 		const tree = {
 			type: 'list',
 			token: {

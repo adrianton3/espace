@@ -1,6 +1,6 @@
-describe('Tokenizer', function () {
-	'use strict'
+'use strict'
 
+describe('Tokenizer', () => {
 	const makeToken = (type) => (value) => ({ type, value })
 
 	const makeNumber = makeToken('number')
@@ -17,12 +17,12 @@ describe('Tokenizer', function () {
 		},
 	})
 
-	it('can tokenize an empty string', function () {
+	it('can tokenize an empty string', () => {
 		expect(chop('')).toEqual([])
 	})
 
-	describe('numbers', function () {
-		it('can tokenize a number', function () {
+	describe('numbers', () => {
+		it('can tokenize a number', () => {
 			expect(chop('0')).toEqual([{
 				type: 'number',
 				value: 0,
@@ -34,7 +34,7 @@ describe('Tokenizer', function () {
 			}])
 		})
 
-		it('can tokenize a floating point number', function () {
+		it('can tokenize a floating point number', () => {
 			expect(chop('0.1')).toEqual([{
 				type: 'number',
 				value: 0.1,
@@ -46,17 +46,17 @@ describe('Tokenizer', function () {
 			}])
 		})
 
-		it('throws an exception when given a number followed by non-separators', function () {
+		it('throws an exception when given a number followed by non-separators', () => {
 			expect(chop.bind(null, '123A')).toThrow(new Error("Unexpected character 'A' after '123'"))
 			// half pi
 			expect(chop.bind(null, '3.14.5')).toThrow(new Error("Unexpected character '.' after '3.14'"))
 		})
 	})
 
-	describe('whitespace', function () {
+	describe('whitespace', () => {
 		const chopW = espace.Tokenizer({ whitespace: true })
 
-		it('can ignore whitespace', function () {
+		it('can ignore whitespace', () => {
 			expect(chop(' ')).toEqual([])
 			expect(chop('\n')).toEqual([])
 			expect(chop('\t')).toEqual([])
@@ -67,7 +67,7 @@ describe('Tokenizer', function () {
 			}])
 		})
 
-		it('can preserve whitespace', function () {
+		it('can preserve whitespace', () => {
 			expect(chopW(' ')).toEqual([{
 				type: 'whitespace',
 				value: ' ',
@@ -99,28 +99,28 @@ describe('Tokenizer', function () {
 		})
 	})
 
-	it('can tokenize an identifier', function () {
+	it('can tokenize an identifier', () => {
 		expect(chop('a1234')).toEqual([{
 			type: 'identifier',
 			value: 'a1234',
 		}])
 	})
 
-	it('can tokenize a paren', function () {
+	it('can tokenize a paren', () => {
 		expect(chop('(')).toEqual([makeOpen('(')])
 		expect(chop(')')).toEqual([makeClosed(')')])
 	})
 
-	describe('comments', function () {
+	describe('comments', () => {
 		const chopC = espace.Tokenizer({ comments: true })
 
-		it('can tokenize a single line comment', function () {
+		it('can tokenize a single line comment', () => {
 			expect(chop(';')).toEqual([])
 			expect(chop(';comment')).toEqual([])
 			expect(chop(';;comment')).toEqual([])
 		})
 
-		it('can tokenize a single line comment and extract it', function () {
+		it('can tokenize a single line comment and extract it', () => {
 			expect(chopC(';')).toEqual([{
 				type: 'comment',
 				value: '',
@@ -135,12 +135,12 @@ describe('Tokenizer', function () {
 			}])
 		})
 
-		it('can tokenize a multi-line comment', function () {
+		it('can tokenize a multi-line comment', () => {
 			expect(chop(';--;')).toEqual([])
 			expect(chop(';-asd\nasd-;')).toEqual([])
 		})
 
-		it('can tokenize a multi-line comment and extract it', function () {
+		it('can tokenize a multi-line comment and extract it', () => {
 			expect(chopC(';--;')).toEqual([{
 				type: 'comment',
 				value: '',
@@ -151,104 +151,104 @@ describe('Tokenizer', function () {
 			}])
 		})
 
-		it('throws an exception when parsing a non-terminated multi-line comment', function () {
+		it('throws an exception when parsing a non-terminated multi-line comment', () => {
 			expect(chop.bind(null, ';-;')).toThrow(new Error('Multiline comment not properly terminated'))
 			expect(chop.bind(null, ';-')).toThrow(new Error('Multiline comment not properly terminated'))
 		})
 	})
 
-	describe('strings', function () {
-		it('can tokenize a single-quoted empty string', function () {
+	describe('strings', () => {
+		it('can tokenize a single-quoted empty string', () => {
 			expect(chop("''")).toEqual([makeString('')])
 		})
 
-		it('can tokenize a single-quoted string', function () {
+		it('can tokenize a single-quoted string', () => {
 			expect(chop("'asd'")).toEqual([makeString('asd')])
 		})
 
-		it('throws an exception on a non-terminated single-quoted string', function () {
+		it('throws an exception on a non-terminated single-quoted string', () => {
 			expect(chop.bind(null, "'")).toThrow(new Error('String not properly ended'))
 		})
 
-		it('throws an exception on a single-quoted string containing new-line', function () {
+		it('throws an exception on a single-quoted string containing new-line', () => {
 			expect(chop.bind(null, "'a\nsd'")).toThrow(new Error('String not properly ended'))
 		})
 
-		it('can tokenize a double-quoted empty string', function () {
+		it('can tokenize a double-quoted empty string', () => {
 			expect(chop('""')).toEqual([makeString('')])
 		})
 
-		it('can tokenize a double-quoted string', function () {
+		it('can tokenize a double-quoted string', () => {
 			expect(chop('"asd"')).toEqual([makeString('asd')])
 		})
 
-		it('throws an exception on a non-terminated double-quoted string', function () {
+		it('throws an exception on a non-terminated double-quoted string', () => {
 			expect(chop.bind(null, '"')).toThrow(new Error('String not properly ended'))
 		})
 
-		it('throws an exception on a double-quoted string containing new-line', function () {
+		it('throws an exception on a double-quoted string containing new-line', () => {
 			expect(chop.bind(null, '"a\nsd"')).toThrow(new Error('String not properly ended'))
 		})
 
-		describe('single-quoted string escaping', function () {
-			it('unescapes \\n', function () {
+		describe('single-quoted string escaping', () => {
+			it('unescapes \\n', () => {
 				const string = "'\\n'"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes \\\\', function () {
+			it('unescapes \\\\', () => {
 				const string = "'\\\\'"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes \\\"', function () {
+			it('unescapes \\\"', () => {
 				const string = "'\\\"'"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes \\\'', function () {
+			it('unescapes \\\'', () => {
 				const string = "'\\\''"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes \"', function () {
+			it('unescapes \"', () => {
 				const string = "'\"'"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes a complex string', function () {
+			it('unescapes a complex string', () => {
 				const string = "'a\\ns\\tz\"dfg\"\"\"h'"
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 		})
 
-		describe('double-quoted string escaping', function () {
-			it('unescapes \\n', function () {
+		describe('double-quoted string escaping', () => {
+			it('unescapes \\n', () => {
 				const string = '"\\n"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes \\\\', function () {
+			it('unescapes \\\\', () => {
 				const string = '"\\\\"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes \\\"', function () {
+			it('unescapes \\\"', () => {
 				const string = '"\\\""'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes \\\'', function () {
+			it('unescapes \\\'', () => {
 				const string = '"\\\'"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes \'', function () {
+			it('unescapes \'', () => {
 				const string = '"\'"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})
 
-			it('unescapes a complex string', function () {
+			it('unescapes a complex string', () => {
 				const string = '"a\\ns\\tz\'dfg\'\'\'h"'
 				expect(chop(string)).toEqual([makeString(eval(string))])
 			})

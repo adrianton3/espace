@@ -22,8 +22,10 @@
 				}
 
 				// first symbol must be the same identifier in both cases
-				if (source.children[0].token.type !== 'identifier' ||
-					source.children[0].token.value !== pattern.children[0].token.value) {
+				if (
+					source.children[0].token.type !== 'identifier' ||
+					source.children[0].token.value !== pattern.children[0].token.value
+				) {
 					return false
 				}
 
@@ -59,15 +61,12 @@
 				return true
 			} else {
 				map[pattern.token.value] = source
+
 				return true
 			}
 		}
 
-		if (extract(source, pattern)) {
-			return map
-		} else {
-			return null
-		}
+		return extract(source, pattern) ? map : null
 	}
 
 
@@ -81,20 +80,12 @@
 		}
 
 		if (tree.type === 'list') {
-			treeClone.children = tree.children.map(function (subtree) {
-				return deepClone(subtree)
-			})
+			treeClone.children = tree.children.map(deepClone)
 		}
 
 		return treeClone
 	}
 
-
-	function insert (array, start, subArray) {
-		const args = [start, 1].concat(subArray)
-		Array.prototype.splice.apply(array, args)
-		return array
-	}
 
 	function isPrefixed (string) {
 		return string.length > 1 && string[0] === '_'
@@ -104,7 +95,7 @@
 		const suffixesThisRound = {}
 
 		function inject (tree) {
-			if (tree.children.length) {
+			if (tree.children.length > 0) {
 				const child = tree.children[0]
 
 				if (isPrefixed(child.token.value)) {
@@ -115,7 +106,7 @@
 							suffixes[child.token.value] = 0
 						}
 
-						suffixesThisRound[child.token.value] = child.token.value + '_' + suffixes[child.token.value]
+						suffixesThisRound[child.token.value] = `${child.token.value}_${suffixes[child.token.value]}`
 					}
 
 					child.token.value = suffixesThisRound[child.token.value]
@@ -128,7 +119,7 @@
 				if (child.token.type === 'identifier') {
 					const replaceTree = map[child.token.value]
 					if (Array.isArray(replaceTree)) {
-						insert(tree.children, i, replaceTree)
+						tree.children.splice(i, 1, ...replaceTree)
 						i += replaceTree.length - 1
 					} else if (replaceTree) {
 						tree.children[i] = replaceTree
@@ -166,38 +157,38 @@
 
 
 	function isRest (string) {
-		return string.length > 3 && string.substr(string.length - 3) === '...'
+		return string.length > 3 && string.slice(-3) === '...'
 	}
 
 	function processForRest (tree) {
 		function traverse (tree) {
-			if (tree.type === 'list') {
-				for (let i = 1; i < tree.children.length; i++) {
-					const token = tree.children[i].token
-					if (token.type === 'identifier' && isRest(token.value)) {
-						tree.rest = {
-							before: i - 1,
-							after: tree.children.length - i - 1,
-							name: token.value,
-						}
-					} else {
-						traverse(tree.children[i])
+			if (tree.type !== 'list') { return }
+
+			for (let i = 1; i < tree.children.length; i++) {
+				const { token } = tree.children[i]
+
+				if (token.type === 'identifier' && isRest(token.value)) {
+					tree.rest = {
+						before: i - 1,
+						after: tree.children.length - i - 1,
+						name: token.value,
 					}
+				} else {
+					traverse(tree.children[i])
 				}
 			}
 		}
 
 		traverse(tree)
-		return tree
 	}
 
 
 	function validatePattern (tree) {
-		const set = {}
+		const set = new Set
 
 		function traverse (tree) {
 			if (tree.children.length > 0 && tree.children[0].token.type !== 'identifier') {
-				throw new Error('Tokens of type ' + tree.children[0].token.type + ' are not allowed in patterns')
+				throw new Error(`Tokens of type ${tree.children[0].token.type} are not allowed in patterns`)
 			}
 
 			let rest = false
@@ -209,10 +200,10 @@
 						throw new Error('Pattern can not contain variables prefixed by \'_\'')
 					}
 
-					if (set[subTree.token.value]) {
-						throw new Error('Variable "' + subTree.token.value + '" already used in pattern')
+					if (set.has(subTree.token.value)) {
+						throw new Error(`Variable "${subTree.token.value}" already used in pattern`)
 					} else {
-						set[subTree.token.value] = true
+						set.add(subTree.token.value)
 					}
 
 					if (isRest(subTree.token.value)) {
@@ -224,7 +215,7 @@
 				} else if (subTree.type === 'list') {
 					traverse(subTree)
 				} else {
-					throw new Error('Tokens of type ' + subTree.token.type + ' are not allowed in patterns')
+					throw new Error(`Tokens of type ${subTree.token.type} are not allowed in patterns`)
 				}
 			}
 		}
@@ -237,13 +228,12 @@
 	}
 
 
-	function expand (source, pattern, substitute, suffixes) {
+	function expand (source, pattern, substitute, suffixes = {}) {
 		processForRest(pattern)
-
-		suffixes = suffixes || {}
 
 		function traverse (source) {
 			const map = extract(source, pattern)
+
 			if (map) {
 				const newSubtree = deepClone(substitute)
 				inject(newSubtree, map, suffixes)

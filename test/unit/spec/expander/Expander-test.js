@@ -1,59 +1,60 @@
-describe('Expander', function () {
+'use strict'
+
+describe('Expander', () => {
 	const tokenizer = espace.Tokenizer()
 
-	const parse = function (text) {
-		return espace.Parser.parse(tokenizer(text))
-	}
-
-	const processForRest = espace.Expander.processForRest
+	const parse = (text) => espace.Parser.parse(tokenizer(text))
 
 
-	describe('extract', function () {
-		const extract = espace.Expander.extract
+	describe('extract', () => {
+		const {
+			extract,
+			processForRest,
+		} = espace.Expander
 
-		it('matches a simple expression', function () {
+		it('matches a simple expression', () => {
 			const source = parse('(+ a b)')
 			const pattern = parse('(+ a b)')
 			expect(extract(source, pattern)).toBeTruthy()
 		})
 
-		it('rejects a simple expression', function () {
+		it('rejects a simple expression', () => {
 			const source = parse('(+ a b)')
 			const pattern = parse('(- a b)')
 			expect(extract(source, pattern)).toBeNull()
 		})
 
-		it('rejects an expression with different parens', function () {
+		it('rejects an expression with different parens', () => {
 			const source = parse('(+ a b)')
 			const pattern = parse('[+ a b]')
 			expect(extract(source, pattern)).toBeNull()
 		})
 
-		it('rejects when trying to match a atom with an expression', function () {
+		it('rejects when trying to match a atom with an expression', () => {
 			const source = parse('a')
 			const pattern = parse('(+ a b)')
 			expect(extract(source, pattern)).toBeNull()
 		})
 
-		it('matches a complex expression with one-to-one correspondence', function () {
+		it('matches a complex expression with one-to-one correspondence', () => {
 			const source = parse('(+ a (- b c))')
 			const pattern = parse('(+ a (- b c))')
 			expect(extract(source, pattern)).toBeTruthy()
 		})
 
-		it('matches a complex expression', function () {
+		it('matches a complex expression', () => {
 			const source = parse('(+ a (- b c))')
 			const pattern = parse('(+ a b)')
 			expect(extract(source, pattern)).toBeTruthy()
 		})
 
-		it('matches a complex expression with multiple paren types', function () {
+		it('matches a complex expression with multiple paren types', () => {
 			const source = parse('[+ a {- b c}]')
 			const pattern = parse('[+ a b]')
 			expect(extract(source, pattern)).toBeTruthy()
 		})
 
-		it('extracts values from a simple expression', function () {
+		it('extracts values from a simple expression', () => {
 			const source = parse('(+ 123 a)')
 			const pattern = parse('(+ x y)')
 
@@ -63,7 +64,7 @@ describe('Expander', function () {
 			expect(map.y).toEqual(parse('a'))
 		})
 
-		it('extracts values from a complex expression with one-to-one correspondence', function () {
+		it('extracts values from a complex expression with one-to-one correspondence', () => {
 			const source = parse('(+ 123 (- a "asd"))')
 			const pattern = parse('(+ x (- y z))')
 
@@ -74,7 +75,7 @@ describe('Expander', function () {
 			expect(map.z).toEqual(parse('"asd"'))
 		})
 
-		it('extracts values from a complex expression', function () {
+		it('extracts values from a complex expression', () => {
 			const source = parse('(+ 123 (- a "asd"))')
 			const pattern = parse('(+ x y)')
 
@@ -84,7 +85,7 @@ describe('Expander', function () {
 			expect(map.y).toEqual(parse('(- a "asd")'))
 		})
 
-		it('extracts a rest parameter', function () {
+		it('extracts a rest parameter', () => {
 			const source = parse('(+ a b c)')
 			const pattern = parse('(+ x...)')
 			processForRest(pattern)
@@ -94,7 +95,7 @@ describe('Expander', function () {
 			expect(map['x...']).toEqual([parse('a'), parse('b'), parse('c')])
 		})
 
-		it('extracts a rest parameter when surrounded by other tokens', function () {
+		it('extracts a rest parameter when surrounded by other tokens', () => {
 			const source = parse('(+ a b c d e)')
 			const pattern = parse('(+ x y... z)')
 			processForRest(pattern)
@@ -108,10 +109,10 @@ describe('Expander', function () {
 	})
 
 
-	describe('deepClone', function () {
-		const deepClone = espace.Expander.deepClone
+	describe('deepClone', () => {
+		const { deepClone } = espace.Expander
 
-		it('clones atoms', function () {
+		it('clones atoms', () => {
 			let expression = parse('asd')
 			expect(deepClone(expression)).toEqual(expression)
 
@@ -122,61 +123,60 @@ describe('Expander', function () {
 			expect(deepClone(expression)).toEqual(expression)
 		})
 
-		it('clones an empty expression', function () {
+		it('clones an empty expression', () => {
 			const expression = parse('()')
 			expect(deepClone(expression)).toEqual(expression)
 		})
 
-		it('clones a simple expression', function () {
+		it('clones a simple expression', () => {
 			const expression = parse('(a)')
 			expect(deepClone(expression)).toEqual(expression)
 		})
 
-		it('clones a single-level expression', function () {
+		it('clones a single-level expression', () => {
 			const expression = parse('(a b c)')
 			expect(deepClone(expression)).toEqual(expression)
 		})
 
-		it('clones a multi-level expression', function () {
+		it('clones a multi-level expression', () => {
 			const expression = parse('(a (b c) d)')
 			expect(deepClone(expression)).toEqual(expression)
 		})
 
-		it('clones a multi-level expression with multiple paren types', function () {
+		it('clones a multi-level expression with multiple paren types', () => {
 			const expression = parse('(a [b {c}] d)')
 			expect(deepClone(expression)).toEqual(expression)
 		})
 	})
 
 
-	describe('inject', function () {
-		const inject = function (source, map, suffixes) {
-			suffixes = suffixes || {}
-			espace.Expander.inject(source, map, suffixes)
+	describe('inject', () => {
+		function inject (source, map, suffixes) {
+			espace.Expander.inject(source, map, suffixes || {})
 		}
 
-		it('injects a variable into a single atom', function () {
+		it('injects a variable into a single atom', () => {
 			const source = parse('a')
 			const map = { a: parse('b') }
 			inject(source, map)
 			expect(source).toEqual(parse('b'))
 		})
 
-		it('injects a variable into a single-level expression', function () {
+		it('injects a variable into a single-level expression', () => {
 			const source = parse('(+ a c)')
 			const map = { a: parse('b') }
 			inject(source, map)
 			expect(source).toEqual(parse('(+ b c)'))
 		})
 
-		it('injects a variable into a multi-level expression', function () {
+		it('injects a variable into a multi-level expression', () => {
 			const source = parse('(+ a (- c d) e)')
 			const map = { c: parse('b') }
 			inject(source, map)
 			expect(source).toEqual(parse('(+ a (- b d) e)'))
 		})
 
-		it('injects a tree into an expression', function () {
+		it('injects a tree into an expression', () => {
 			const source = parse('(+ a e)')
 			const map = {
 				a: parse('(- b c)'),
@@ -186,7 +186,7 @@ describe('Expander', function () {
 			expect(source).toEqual(parse('(+ (- b c) (- f g))'))
 		})
 
-		it('injects a rest term into an expression', function () {
+		it('injects a rest term into an expression', () => {
 			const source = parse('(+ a z...)')
 			const map = {
 				'z...': [parse('b'), parse('c')],
@@ -196,7 +196,7 @@ describe('Expander', function () {
 			expect(source).toEqual(expected)
 		})
 
-		it('injects two rest terms into an expression', function () {
+		it('injects two rest terms into an expression', () => {
 			const source = parse('(+ x... y...)')
 			const map = {
 				'x...': [parse('a'), parse('b')],
@@ -207,7 +207,7 @@ describe('Expander', function () {
 			expect(source).toEqual(expected)
 		})
 
-		it('generates a unique name for a prefixed identifier', function () {
+		it('generates a unique name for a prefixed identifier', () => {
 			const source = parse('(+ _a)')
 			const map = {}
 			const suffixes = {}
@@ -216,7 +216,7 @@ describe('Expander', function () {
 			expect(source).toEqual(expected)
 		})
 
-		it('generates a unique name for a prefixed identifier and uses it consistently', function () {
+		it('generates a unique name for a prefixed identifier and uses it consistently', () => {
 			const source = parse('(+ _a _a)')
 			const map = {}
 			const suffixes = {}
@@ -227,13 +227,14 @@ describe('Expander', function () {
 	})
 
 
-	describe('processForRest', function () {
-		const processForRest = function (text) {
+	describe('processForRest', () => {
+		function processForRest (text) {
 			const tree = parse(text)
-			return espace.Expander.processForRest(tree)
+			espace.Expander.processForRest(tree)
+			return tree
 		}
 
-		const parseAndRest = function (text, before, after, name) {
+		function parseAndRest (text, before, after, name) {
 			const tree = parse(text)
 			tree.rest = {
 				before,
@@ -243,7 +244,7 @@ describe('Expander', function () {
 			return tree
 		}
 
-		const tokenA = function (value) {
+		function makeAtom (value) {
 			return {
 				type: 'atom',
 				token: {
@@ -253,119 +254,110 @@ describe('Expander', function () {
 			}
 		}
 
-		const tokenP = function (rest) {
-			const tree = {
+		function makeList (rest, ...children) {
+			return {
 				type: 'list',
 				token: {
 					type: 'open',
 					value: '(',
 				},
-				children: Array.prototype.slice.call(arguments, 1),
+				children,
+				rest,
 			}
-			if (rest) {
-				tree.rest = rest
-			}
-			return tree
 		}
 
-		it('does not affect expressions that don\'t contain rest parameters', function () {
+		it('does not affect expressions that don\'t contain rest parameters', () => {
 			const source = '(+ a b c)'
 			const tree = processForRest(source)
 			expect(tree).toEqual(parse(source))
 		})
 
-		it('matches the rest token in a simple expression', function () {
+		it('matches the rest token in a simple expression', () => {
 			const source = '(+ a...)'
 			const tree = processForRest(source)
 			expect(tree).toEqual(parseAndRest(source, 0, 0, 'a...'))
 		})
 
-		it('matches the rest token in a simple expression when it is not the first', function () {
+		it('matches the rest token in a simple expression when it is not the first', () => {
 			const source = '(+ a b c...)'
 			const tree = processForRest(source)
 			expect(tree).toEqual(parseAndRest(source, 2, 0, 'c...'))
 		})
 
-		it('matches the rest token in a simple expression when it is not the last', function () {
+		it('matches the rest token in a simple expression when it is not the last', () => {
 			const source = '(+ a... b c)'
 			const tree = processForRest(source)
 			expect(tree).toEqual(parseAndRest(source, 0, 2, 'a...'))
 		})
 
-		it('matches the rest token in a simple expression when it is not the first nor the last', function () {
+		it('matches the rest token in a simple expression when it is not the first nor the last', () => {
 			const source = '(+ a b... c d)'
 			const tree = processForRest(source)
 			expect(tree).toEqual(parseAndRest(source, 1, 2, 'b...'))
 		})
 
-		it('matches the rest tokens in a nested expression', function () {
+		it('matches the rest tokens in a nested expression', () => {
 			const source = '(+ a b... (- c... d))'
 			const tree = processForRest(source)
 
-			expect(tree).toEqual(tokenP({
-				before: 1,
-				after: 1,
-				name: 'b...',
-			},
-			tokenA('+'),
-			tokenA('a'),
-			tokenA('b...'),
-			tokenP({
-				before: 0,
-				after: 1,
-				name: 'c...',
-			},
-			tokenA('-'),
-			tokenA('c...'),
-			tokenA('d')
+			expect(tree).toEqual(
+				makeList({ before: 1, after: 1, name: 'b...' },
+					makeAtom('+'),
+					makeAtom('a'),
+					makeAtom('b...'),
+					makeList({ before: 0, after: 1, name: 'c...' },
+						makeAtom('-'),
+						makeAtom('c...'),
+						makeAtom('d'),
+					)
+				)
 			)
-			))
 		})
 	})
 
 
-	describe('validatePattern', function () {
-		const validate = function (source) {
+	describe('validatePattern', () => {
+		function validate (source) {
 			const tree = parse(source)
 			return espace.Expander.validatePattern.bind(null, tree)
 		}
 
-		beforeEach(function () {
+		beforeEach(() => {
 			jasmine.addMatchers(meta.CustomMatchers)
 		})
 
-		it('throws an exception when a pattern expression starts with non-identifiers', function () {
+		it('throws an exception when a pattern expression starts with non-identifiers', () => {
 			expect(validate('(123 a b)'))
 				.toThrowWithMessage('Tokens of type number are not allowed in patterns')
 			expect(validate('("asd" a b)'))
 				.toThrowWithMessage('Tokens of type string are not allowed in patterns')
 		})
 
-		it('throws an exception when a pattern contains non-identifiers', function () {
+		it('throws an exception when a pattern contains non-identifiers', () => {
 			expect(validate('(+ a 123)'))
 				.toThrowWithMessage('Tokens of type number are not allowed in patterns')
 			expect(validate('(+ a "asd")'))
 				.toThrowWithMessage('Tokens of type string are not allowed in patterns')
 		})
 
-		it('throws an exception when a pattern contains the same variable twice', function () {
+		it('throws an exception when a pattern contains the same variable twice', () => {
 			expect(validate('(+ a a)'))
 				.toThrowWithMessage('Variable "a" already used in pattern')
 		})
 
-		it('throws an exception when a pattern contains more rest variables on the same level', function () {
+		it('throws an exception when a pattern contains more rest variables on the same level', () => {
 			expect(validate('(+ a... (+ b c) d...)'))
 				.toThrowWithMessage('Pattern can contain at most one rest variable on a level')
 		})
 
-		it('throws an exception when a pattern containes a prefixed variable', function () {
+		it('throws an exception when a pattern containes a prefixed variable', () => {
 			expect(validate('(+ a b _c)'))
 				.toThrowWithMessage('Pattern can not contain variables prefixed by \'_\'')
 		})
 	})
 
 
-	describe('expand', function () {
+	describe('expand', () => {
 		const expand = function (source, pattern, replacement) {
 			const sourceTree = parse(source)
 
@@ -378,52 +370,52 @@ describe('Expander', function () {
 			return sourceTree
 		}
 
-		it('expands an atom', function () {
+		it('expands an atom', () => {
 			const source = expand('(++ a)', '(++ x)', '(+ x 1)')
 			expect(source).toEqual(parse('(+ a 1)'))
 		})
 
-		it('rewrites an expression', function () {
+		it('rewrites an expression', () => {
 			const source = expand('(+ a b c)', '(+ x y z)', '(+ x (+ y z))')
 			expect(source).toEqual(parse('(+ a (+ b c))'))
 		})
 
-		it('rewrites a complex expression', function () {
+		it('rewrites a complex expression', () => {
 			const source = expand('(- m (+ a b c) n)', '(+ x y z)', '(+ x (+ y z))')
 			expect(source).toEqual(parse('(- m (+ a (+ b c)) n)'))
 		})
 
-		it('rewrites a simple expression with a rest term', function () {
+		it('rewrites a simple expression with a rest term', () => {
 			const source = expand('(+ a b c)', '(+ x...)', '(- x...)')
 			expect(source).toEqual(parse('(- a b c)'))
 		})
 
-		it('rewrites a longer expression with a rest term', function () {
+		it('rewrites a longer expression with a rest term', () => {
 			const source = expand('(+ a b c d e)', '(+ x y... z)', '(- z y... x)')
 			expect(source).toEqual(parse('(- e b c d a)'))
 		})
 
-		it('rewrites a nested expression with rest terms', function () {
+		it('rewrites a nested expression with rest terms', () => {
 			const source = expand('(+ a b (+ c d))', '(+ x... (+ y...))', '(+ (+ x...) y...)')
 			expect(source).toEqual(parse('(+ (+ a b) c d)'))
 		})
 
-		it('generates a unique name for a prefixed identifier', function () {
+		it('generates a unique name for a prefixed identifier', () => {
 			const source = expand('(+ a b)', '(+ x y)', '(+ x _z)')
 			expect(source).toEqual(parse('(+ a _z_0)'))
 		})
 
-		it('generates a unique name for a prefixed identifier and uses it consistently', function () {
+		it('generates a unique name for a prefixed identifier and uses it consistently', () => {
 			const source = expand('(+ a b)', '(+ x y)', '(+ _z _z)')
 			expect(source).toEqual(parse('(+ _z_0 _z_0)'))
 		})
 
-		it('generates a unique name for a prefixed identifier in different matches', function () {
+		it('generates a unique name for a prefixed identifier in different matches', () => {
 			const source = expand('(- (+ a b) (+ c d))', '(+ x y)', '(+ x _z)')
 			expect(source).toEqual(parse('(- (+ a _z_0) (+ c _z_1))'))
 		})
 
-		it('generates a unique name for a prefixed identifier even if it\'s the first child', function () {
+		it('generates a unique name for a prefixed identifier even if it\'s the first child', () => {
 			const source = expand('(swap a b)', '(swap x y)', '(let (_tmp x) (set! x y) (set! y _tmp))')
 			expect(source).toEqual(parse('(let (_tmp_0 a) (set! a b) (set! b _tmp_0))'))
 		})
