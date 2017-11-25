@@ -1,51 +1,34 @@
-(function () {
+(() => {
 	'use strict'
 
-	function randI (min, max) {
-		if (max === undefined) {
-			max = min
-			min = 0
-		}
-		return Math.floor((max - min) * Math.random()) + min
-	}
-
-	function sample (samples) {
-		return samples[Math.floor(Math.random() * samples.length)]
-	}
-
-	function randomString (length) {
-		let string = ''
-		for (let i = 0; i < length; i++) {
-			string += String.fromCharCode(randI(65, 90))
-		}
-		return string
-	}
+	const {
+		randInt,
+		repeat,
+		sample,
+		generateGibberish,
+	} = Common
 
 	const atomGenerators = [
-		function () { return '' + Math.floor(Math.random() * 100000) },
-		function () { return randomString(randI(1, 20)) },
-		function () { return '"' + randomString(randI(1, 20)) + '"' },
+		() => `${randInt(1, 100000)}`,
+		() => generateGibberish(randInt(1, 20), 65, 90),
+		() => `"${generateGibberish(randInt(1, 20), 35, 92)}"`,
 	]
 
-	const atom = function () {
-		return sample(atomGenerators)()
-	}
+	const generateAtom = sample(atomGenerators)
 
 	function generateExpression (config) {
 		let remainingElements = config.maxElements
 
-		function expression () {
+		function generateLevel () {
 			remainingElements--
 
 			if (Math.random() < config.pAtom || remainingElements <= 0) {
-				return atom()
+				return generateAtom()
 			} else {
-				const nSubexpressions = randI(config.maxSubexpressions)
-
 				const parts = []
-				for (let i = 0; i < nSubexpressions; i++) {
-					parts.push(expression())
-				}
+				repeat(randInt(config.maxSubexpressions), () => {
+					parts.push(generateLevel())
+				})
 
 				const partsString = parts.join(' ')
 
@@ -55,16 +38,9 @@
 			}
 		}
 
-		return expression()
+		return generateLevel()
 	}
 
-
-
-	function repeat (times, callback) {
-		for (let i = 0; i < times; i++) {
-			callback(i)
-		}
-	}
 
 	const configs = [{
 		pAtom: 0.01,
@@ -80,23 +56,22 @@
 		maxSubexpressions: 1000,
 	}]
 
-	const nTest = 10
-	const { tokenize } = espace.Tokenizer
+	const testCount = 10
 
-	configs.forEach(function (config) {
-		rand.TaskRunner.push(function () {
-			rand.HtmlReporter.describe('Well formed expressions', config, nTest)
+	configs.forEach((config) => {
+		rand.TaskRunner.push(() => {
+			rand.HtmlReporter.describe('Well formed expressions', config, testCount)
 		})
 
-		repeat(nTest, function () {
-			rand.TaskRunner.push(function () {
+		repeat(testCount, () => {
+			rand.TaskRunner.push(() => {
 				const expression = generateExpression(config)
-				const tokens = tokenize(expression)
+				const tokens = espace.Tokenizer.tokenize(expression)
 				const tree = espace.Parser.parse(tokens)
 				const serializedExpression = espace.Serializer.serialize(tree)
 
 				if (expression !== serializedExpression) {
-					rand.HtmlReporter.report('Found mismatch' + expression + '<hr>' + serializedExpression)
+					rand.HtmlReporter.report(`Found mismatch${expression}<hr>${serializedExpression}`)
 				}
 
 				rand.HtmlReporter.advance()

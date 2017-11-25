@@ -1,45 +1,27 @@
-(function () {
+(() => {
 	'use strict'
 
-	function randI (min, max) {
-		if (max === undefined) {
-			max = min
-			min = 0
-		}
-		return Math.floor((max - min) * Math.random()) + min
-	}
+	const {
+		repeat,
+		generateGibberish,
+	} = Common
 
-	function generateGibberish () {
-		let ret = ''
-		for (let i = 0; i < 50; i++) {
-			ret += String.fromCharCode(randI(32, 127))
-		}
-		return ret
-	}
+	const testCount = 100
 
-	const nTest = 100
-	const { tokenize } = espace.Tokenizer
-
-	function repeat (times, callback) {
-		for (let i = 0; i < times; i++) {
-			callback(i)
-		}
-	}
-
-	rand.TaskRunner.push(function () {
-		rand.HtmlReporter.describe('Random strings', {}, nTest)
+	rand.TaskRunner.push(() => {
+		rand.HtmlReporter.describe('Random strings', {}, testCount)
 	})
 
-	repeat(nTest, function () {
-		rand.TaskRunner.push(function () {
-			const gibberish = generateGibberish()
+	repeat(testCount, () => {
+		rand.TaskRunner.push(() => {
+			const gibberish = generateGibberish(50, 32, 127)
 
 			try {
-				const tokens = tokenize(gibberish)
+				const tokens = espace.Tokenizer.tokenize(gibberish)
 				const tree = espace.Parser.parse(tokens)
 				const serializedExpression = espace.Serializer.serialize(tree)
-			} catch (e) {
-				if (!e.hasOwnProperty('coords')) {
+			} catch (ex) {
+				if (!ex.hasOwnProperty('coords')) {
 					rand.HtmlReporter.report(gibberish)
 				}
 			}
