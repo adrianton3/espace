@@ -44,13 +44,19 @@ describe('Parser', () => {
 	it('can parse nothing', () => {
 		const tokens = []
 
-		expect(parse(tokens)).toBeNull()
+		expect(parse(tokens)).toEqual([])
 	})
 
 	it('can parse an atom', () => {
 		const tokens = [makeNumber(123)]
 
-		expect(parse(tokens)).toEqual(makeAst.atom('number', 123))
+		expect(parse(tokens)).toEqual([makeAst.atom('number', 123)])
+	})
+
+	it('can parse two atoms', () => {
+		const tokens = [makeNumber(123), makeNumber(321)]
+
+		expect(parse(tokens)).toEqual([makeAst.atom('number', 123), makeAst.atom('number', 321)])
 	})
 
 	it('can parse an empty paren', () => {
@@ -59,7 +65,18 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(makeAst.list('('))
+		expect(parse(tokens)).toEqual([makeAst.list('(')])
+	})
+
+	it('can parse two empty parens', () => {
+		const tokens = [
+			makeOpen('('),
+			makeClosed(')'),
+			makeOpen('['),
+			makeClosed(']'),
+		]
+
+		expect(parse(tokens)).toEqual([makeAst.list('('), makeAst.list('[')])
 	})
 
 	it('can parse a one element paren', () => {
@@ -69,11 +86,11 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.list('(', [
 				makeAst.atom('identifier', 'x'),
 			])
-		)
+		])
 	})
 
 	it('can parse a two element paren', () => {
@@ -84,12 +101,12 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.list('(', [
 				makeAst.atom('identifier', 'x'),
 				makeAst.atom('identifier', 'y'),
 			])
-		)
+		])
 	})
 
 	it('can parse a nested empty paren', () => {
@@ -100,11 +117,11 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.list('(', [
 				makeAst.list('(', []),
 			])
-		)
+		])
 	})
 
 	it('can parse nested parens of all types', () => {
@@ -117,13 +134,13 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.list('(', [
 				makeAst.list('[', [
 					makeAst.list('{', []),
 				])
 			])
-		)
+		])
 	})
 
 	it('can parse a one element nested paren', () => {
@@ -135,13 +152,13 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.list('(', [
 				makeAst.list('(', [
 					makeAst.atom('identifier', 'x'),
 				]),
 			])
-		)
+		])
 	})
 
 	it('can parse a complex expression', () => {
@@ -157,7 +174,7 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.list('(', [
 				makeAst.atom('identifier', 'x'),
 				makeAst.list('(', [
@@ -166,7 +183,7 @@ describe('Parser', () => {
 				makeAst.atom('identifier', 'z'),
 				makeAst.list('(', []),
 			])
-		)
+		])
 	})
 
 	it('can parse a prefixed number', () => {
@@ -175,11 +192,11 @@ describe('Parser', () => {
 			makeIdentifier('x'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.prefix('#',
 				makeAst.atom('identifier', 'x'),
 			)
-		)
+		])
 	})
 
 	it('can parse a prefixed (', () => {
@@ -189,11 +206,11 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.prefix('#',
 				makeAst.list('(', []),
 			)
-		)
+		])
 	})
 
 	it('can parse a doubly prefixed (', () => {
@@ -204,25 +221,25 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse(tokens)).toEqual(
+		expect(parse(tokens)).toEqual([
 			makeAst.prefix('@',
 				makeAst.prefix('#',
 					makeAst.list('(', []),
 				)
 			)
-		)
+		])
 	})
 
 	it('throws an exception when trying to parse just (', () => {
 		const tokens = [makeOpen('(')]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Missing )'))
+		expect(parse.bind(null, tokens)).toThrow(new Error('Expected matching ")" before end of input'))
 	})
 
 	it('throws an exception when starting with a )', () => {
 		const tokens = [makeClosed(')')]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Cannot start with )'))
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected ")"'))
 	})
 
 	it('throws an exception when trying to parse ())', () => {
@@ -232,47 +249,7 @@ describe('Parser', () => {
 			makeClosed(')'),
 		]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
-	})
-
-	it('throws an exception when given more than one atom', () => {
-		const tokens = [
-			makeIdentifier('x'),
-			makeIdentifier('y'),
-		]
-
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
-	})
-
-	it('throws an exception when parsing *()', () => {
-		const tokens = [
-			makeIdentifier('*'),
-			makeOpen('('),
-			makeClosed(')'),
-		]
-
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
-	})
-
-	it('throws an exception when parsing ()*', () => {
-		const tokens = [
-			makeOpen('('),
-			makeClosed(')'),
-			makeIdentifier('*'),
-		]
-
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
-	})
-
-	it('throws an exception when parsing ()()', () => {
-		const tokens = [
-			makeOpen('('),
-			makeClosed(')'),
-			makeOpen('('),
-			makeClosed(')'),
-		]
-
-		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected token'))
+		expect(parse.bind(null, tokens)).toThrow(new Error('Unexpected ")"'))
 	})
 
 	it('throws an exception when parsing (]', () => {
@@ -281,6 +258,6 @@ describe('Parser', () => {
 			makeClosed(']'),
 		]
 
-		expect(parse.bind(null, tokens)).toThrow(new Error('Paren types must match'))
+		expect(parse.bind(null, tokens)).toThrow(new Error('Expected matching ")"'))
 	})
 })

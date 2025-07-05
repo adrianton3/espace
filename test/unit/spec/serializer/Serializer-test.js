@@ -15,6 +15,24 @@ describe('Serializer', () => {
 		expect(serialize(tree)).toEqual('123')
 	})
 
+	it('can serialize two numbers', () => {
+		const tree = [{
+			type: 'atom',
+			token: {
+				type: 'number',
+				value: 123,
+			},
+		}, {
+			type: 'atom',
+			token: {
+				type: 'number',
+				value: 321,
+			},
+		}]
+
+		expect(serialize(tree)).toEqual('123 321')
+	})
+
 	it('can serialize a string', () => {
 		const tree = {
 			type: 'atom',
@@ -39,7 +57,7 @@ describe('Serializer', () => {
 		expect(serialize(tree)).toEqual('asd')
 	})
 
-	it('can serialize an empty paren', () => {
+	it('can serialize ()', () => {
 		const tree = {
 			type: 'list',
 			token: {
@@ -52,7 +70,40 @@ describe('Serializer', () => {
 		expect(serialize(tree)).toEqual('()')
 	})
 
-	it('can serialize a nested empty paren', () => {
+	it('can serialize () ()', () => {
+		const tree = [{
+			type: 'list',
+			token: {
+				type: 'open',
+				value: '(',
+			},
+			children: [],
+		}, {
+			type: 'list',
+			token: {
+				type: 'open',
+				value: '(',
+			},
+			children: [],
+		}]
+
+		expect(serialize(tree)).toEqual('() ()')
+	})
+
+	it('can serialize []', () => {
+		const tree = [{
+			type: 'list',
+			token: {
+				type: 'open',
+				value: '[',
+			},
+			children: [],
+		}]
+
+		expect(serialize(tree)).toEqual('[]')
+	})
+
+	it('can serialize (())', () => {
 		const tree = {
 			type: 'list',
 			token: {

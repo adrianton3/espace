@@ -2,7 +2,7 @@
 
 describe('Expander', () => {
 	const parse = (text) =>
-		espace.Parser.parse(espace.Tokenizer.tokenize(text))
+		espace.Parser.parse(espace.Tokenizer.tokenize(text))[0]
 
 
 	describe('extract', () => {

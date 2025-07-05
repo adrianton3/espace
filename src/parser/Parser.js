@@ -8,14 +8,14 @@
 	}
 
 	function makeList (token) {
-		if (token.type === 'open') {
-			return {
-				type: 'list',
-				token,
-				children: [],
-			}
+		return {
+			type: 'list',
+			token,
+			children: [],
 		}
+	}
 
+	function makeListPrefix (token, child) {
 		return {
 			type: 'list',
 			token,
@@ -25,79 +25,74 @@
 					type: 'identifier',
 					value: token.value,
 				},
-			}],
+			}, child],
 		}
 	}
 
-	function isMatching (open, closed) {
-		return (open === '(' && closed === ')') ||
-			(open === '[' && closed === ']') ||
-			(open === '{' && closed === '}')
+	function getMatching (open) {
+		return open === '(' ? ')'
+			: open === '[' ? ']'
+			: '}'
 	}
 
 	function parse (tokens) {
-		if (!tokens.length) {
-			return null
-		}
+		let index = 0
 
-		let root
-		const stack = []
-		let currentLevel = null
+		function traverse () {
+			const token = tokens[index]
+			index++
 
-		let token = tokens[0]
-		if (token.type === 'open' || token.type === 'prefix') {
-			currentLevel = makeList(token)
-			root = currentLevel
-			stack.push(currentLevel)
-		} else if (token.type === 'closed') {
-			raise(token, 'Cannot start with )')
-		} else {
-			if (tokens.length > 1) {
-				raise(token, 'Unexpected token')
-			}
+			if (token.type === 'open') {
+				const list = makeList(token)
+				const expectedMatching = getMatching(token.value)
 
-			return { type: 'atom', token }
-		}
-
-		for (let i = 1; i < tokens.length; i++) {
-			token = tokens[i]
-
-			if (!currentLevel) {
-				raise(token, 'Unexpected token')
-			}
-
-			if (token.type === 'open' || token.type === 'prefix') {
-				const newLevel = makeList(token)
-				currentLevel.children.push(newLevel)
-				currentLevel = newLevel
-				stack.push(currentLevel)
-			} else {
-				if (token.type === 'closed') {
-					const lastLevel = stack.pop()
-					if (!isMatching(lastLevel.token.value, token.value)) {
-						raise(token, 'Paren types must match')
+				while (true) {
+					if (index >= tokens.length) {
+						raise(tokens[index - 1], `Expected matching "${expectedMatching}" before end of input`)
 					}
 
-					currentLevel = stack[stack.length - 1]
-				} else {
-					currentLevel.children.push({
-						type: 'atom',
-						token,
-					})
+					if (tokens[index].type === 'closed') {
+						if (tokens[index].value === expectedMatching) {
+							index++
+							break
+						} else {
+							raise(tokens[index], `Expected matching "${getMatching(token.value)}"`)
+						}
+					}
+
+					list.children.push(traverse())
 				}
 
-				while (currentLevel && currentLevel.token.type === 'prefix') {
-					stack.pop()
-					currentLevel = stack[stack.length - 1]
+				return list
+			}
+
+			if (token.type === 'prefix') {
+				if (index >= tokens.length) {
+					raise(tokens[index - 1], `Unexpected end of input`)
 				}
+
+				return makeListPrefix(token, traverse())
+			}
+
+			return {
+				type: 'atom',
+				token,
 			}
 		}
 
-		if (stack.length > 0) {
-			raise(token, 'Missing )')
+		const top = []
+
+		while (index < tokens.length) {
+			const token = tokens[index]
+
+			if (token.type === 'closed') {
+				raise(token, `Unexpected "${token.value}"`)
+			}
+
+			top.push(traverse())
 		}
 
-		return root
+		return top
 	}
 
 	espace.Parser = {
