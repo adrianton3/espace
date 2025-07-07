@@ -307,10 +307,11 @@ describe('Expander', () => {
 	})
 
 
-	describe('validatePattern', () => {
-		function validate (source) {
-			const tree = getTree(source)
-			return Ex.validatePattern.bind(null, tree)
+	describe('validateRule', () => {
+		function validate (patternSource, substituteSource) {
+			const patternTree = getTree(patternSource)
+			const substituteTree = getTree(substituteSource)
+			return Ex.validateRule.bind(null, patternTree, substituteTree)
 		}
 
 		beforeEach(() => {
@@ -318,32 +319,37 @@ describe('Expander', () => {
 		})
 
 		it('throws an exception when a pattern expression starts with non-identifiers', () => {
-			expect(validate('(123 a b)'))
+			expect(validate('(123 a b)', '1'))
 				.toThrowWithMessage('Tokens of type number are not allowed in patterns')
-			expect(validate('("asd" a b)'))
+			expect(validate('("asd" a b)', '1'))
 				.toThrowWithMessage('Tokens of type string are not allowed in patterns')
 		})
 
 		it('throws an exception when a pattern contains non-identifiers', () => {
-			expect(validate('(+ a 123)'))
+			expect(validate('(+ a 123)', '1'))
 				.toThrowWithMessage('Tokens of type number are not allowed in patterns')
-			expect(validate('(+ a "asd")'))
+			expect(validate('(+ a "asd")', '1'))
 				.toThrowWithMessage('Tokens of type string are not allowed in patterns')
 		})
 
 		it('throws an exception when a pattern contains the same variable twice', () => {
-			expect(validate('(+ a a)'))
+			expect(validate('(+ a a)', '1'))
 				.toThrowWithMessage('Variable "a" already used in pattern')
 		})
 
 		it('throws an exception when a pattern contains more rest variables on the same level', () => {
-			expect(validate('(+ a... (+ b c) d...)'))
+			expect(validate('(+ a... (+ b c) d...)', '1'))
 				.toThrowWithMessage('Pattern can contain at most one rest variable on a level')
 		})
 
-		it('throws an exception when a pattern containes a prefixed variable', () => {
-			expect(validate('(+ a b _c)'))
+		it('throws an exception when a pattern contains a prefixed variable', () => {
+			expect(validate('(+ a b _c)', '1'))
 				.toThrowWithMessage('Pattern can not contain variables prefixed by \'_\'')
+		})
+
+		it('throws an exception when a subtitue contains a rest variable that does not appear in pattern', () => {
+			expect(validate('(+ a b...)', '(- a c...)'))
+				.toThrowWithMessage('Rest variable \'c...\' is not present in pattern')
 		})
 	})
 

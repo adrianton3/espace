@@ -180,10 +180,11 @@ function processForRest (tree) {
 }
 
 
-function validatePattern (tree) {
-    const set = new Set
+function validateRule (pattern, substitute) {
+    const vars = new Set
+    const rests = new Set
 
-    function traverse (tree) {
+    function traversePattern (tree) {
         if (tree.children.length > 0 && tree.children[0].token.type !== 'identifier') {
             throw new Error(`Tokens of type ${tree.children[0].token.type} are not allowed in patterns`)
         }
@@ -197,10 +198,10 @@ function validatePattern (tree) {
                     throw new Error('Pattern can not contain variables prefixed by \'_\'')
                 }
 
-                if (set.has(subTree.token.value)) {
+                if (vars.has(subTree.token.value)) {
                     throw new Error(`Variable "${subTree.token.value}" already used in pattern`)
                 } else {
-                    set.add(subTree.token.value)
+                    vars.add(subTree.token.value)
                 }
 
                 if (isRest(subTree.token.value)) {
@@ -208,20 +209,41 @@ function validatePattern (tree) {
                         throw new Error('Pattern can contain at most one rest variable on a level')
                     }
                     rest = true
+                    rests.add(subTree.token.value)
                 }
             } else if (subTree.type === 'list') {
-                traverse(subTree)
+                traversePattern(subTree)
             } else {
                 throw new Error(`Tokens of type ${subTree.token.type} are not allowed in patterns`)
             }
         }
     }
 
-    if (tree.type === 'list') {
-        traverse(tree)
-    } else {
-        throw new Error('Pattern must not be an atom')
+    function traverseSubstitute (tree) {
+        if (tree.type === 'atom') {
+            if (
+                tree.token.type === 'identifier' &&
+                isRest(tree.token.value) &&
+                !rests.has(tree.token.value)
+            ) {
+                throw new Error(`Rest variable '${tree.token.value}' is not present in pattern`)
+            }
+
+            return
+        }
+
+        for (let i = 0; i < tree.children.length; i++) {
+            traverseSubstitute(tree.children[i])
+        }
     }
+
+    if (pattern.type === 'list') {
+        traversePattern(pattern)
+    } else {
+        throw new Error('Pattern can not be an atom')
+    }
+
+    traverseSubstitute(substitute)
 }
 
 
@@ -254,6 +276,6 @@ export {
     deepClone,
     inject,
     processForRest,
-    validatePattern,
+    validateRule,
     expand,
 }

@@ -1,4 +1,4 @@
-import { tokenize, parse, serialize, validatePattern, expand } from '../../build/espace.mjs'
+import { tokenize, parse, serialize, validateRule, expand } from '../../build/espace.mjs'
 
 
 const SAMPLE_TEXTS = {
@@ -117,7 +117,7 @@ function handleInput () {
             throw new Error('Expected a macro definition')
         }
 
-        validatePattern(macrosTree.children[1])
+        validateRule(macrosTree.children[1], macrosTree.children[2])
 
         expand(
             sourceTree,
