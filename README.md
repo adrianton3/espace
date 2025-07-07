@@ -3,9 +3,9 @@ espace
 
 S-expression parser in JavaScript
 
-+ [Tokens](http://adrianton3.github.io/espace.js/examples/tokens/tokens.html)
-+ [Tree](http://adrianton3.github.io/espace.js/examples/tree/tree.html)
-+ [Macros](http://adrianton3.github.io/espace.js/examples/macros/macros.html)
++ [Tokens](http://adrianton3.github.io/espace/examples/tokens/)
++ [Tree](http://adrianton3.github.io/espace/examples/tree/)
++ [Macros](http://adrianton3.github.io/espace/examples/macros/)
 
 #### Tokenizer
 
@@ -16,19 +16,19 @@ const options = {
     coords: true,
     prefixes: {
         '#': 'map',
+        ':': 'key',
     },
 }
 
 const source = '(fun (a b) (+ a b))'
-const tokens = espace.Tokenizer.tokenize(source, options) //
+const tokens = tokenize(source, options) //
 ```
 
 #### Parser
 
 ```javascript
 const source = '(fun (a b) (+ a b))'
-const tokens = espace.Tokenizer.tokenize(source)
-const tree = espace.Parser.parse(tokens) //
+const tree = parse(tokenize(source)) //
 ```
 
 #### Macro expander
@@ -38,14 +38,13 @@ const source = '(+ a b c)'
 const pattern = '(+ x y z)'
 const replace = '(+ (+ x y) z)'
 
-const parse = (source) => 
-    espace.Parser.parse(espace.Tokenizer.tokenize(source))
+const getTree = (source) => parse(tokenize(source))
 
-const sourceTree = parse(source)
-const patternTree = parse(pattern)
-const replaceTree = parse(replace)
+const sourceTree = getTree(source)
+const patternTree = getTree(pattern)
+const replaceTree = getTree(replace)
 
-espace.Expander.expand(sourceTree, patternTree, replaceTree) //
+expand(sourceTree, patternTree, replaceTree) //
 ```
 
 *Pattern* can have more than one level:

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>espace | macros</title>
+    <link rel="stylesheet" href="macros.css" type="text/css">
+</head>
+<body>
+    <p class="title">espace | macros</p>
+    <!--<p class="desc">...</p>-->
+    <div class="center">
+        <div class="editor-container">
+            <span class="header">In Source</span>
+            <div  id="source-editor"></div>
+        </div>
+        <div class="editor-container">
+            <span class="header">In Macro</span>
+            <div id="macros-editor"></div>
+        </div>
+        <div class="editor-container">
+            <span class="header">Out Source</span>
+            <div id="output-editor"></div>
+        </div>
+
+		<p class="instructions">
+			Nested expressions can also be matched. Check out <span class="link" data-example="nested">this</span> example.<br>
+			Macro processor supports rest variables. Check out <span class="link" data-example="rest1">this</span> or <span class="link" data-example="rest2">this</span> example.<br>
+			The macro processor can generate unique variable names, if needed - just use the "_" prefix. Check out <span class="link" data-example="hygiene">this</span> example.
+		</p>
+    </div>
+
+    <script src="../lib/ace/ace.js"></script>
+    <script src="../lib/ace/theme-monokai.js"></script>
+    <script src="../lib/ace/mode-javascript.js"></script>
+    <script src="../lib/ace/worker-javascript.js"></script>
+
+    <script type="module" src="../../../build/espace.min.mjs"></script>
+
+    <script type="module" src="macros.mjs"></script>
+</body>
+</html>

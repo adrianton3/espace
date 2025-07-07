@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="rand.css">
+    <title>espace fuzz</title>
+</head>
+<body>
+    <script type="module" src="generators/gibberish-fuzz.mjs"></script>
+    <script type="module" src="generators/parser-fuzz.mjs"></script>
+
+    <script type="module">
+        import { start } from './task-runner.mjs'
+
+        start()
+    </script>
+</body>
+</html>

@@ -2,14 +2,12 @@
   "name": "espace",
   "version": "0.0.0",
   "devDependencies": {
-    "eslint": "^4.11.0",
-    "uglify-es": "^3.1.10"
+    "rollup": "^4.44.2",
+    "uglify-js": "^3.19.3"
   },
   "scripts": {
-    "uglify": "uglifyjs src/**/*.js > tmp/espace.min.unwrap.js",
-    "wrap": "cat tools/header.js tmp/espace.min.unwrap.js tools/footer.js > tmp/espace.min.js",
-    "build": "npm run uglify && npm run wrap && rm tmp/espace.min.unwrap.js",
-    "eslint": "node node_modules/eslint/bin/eslint.js src test/rand test/unit examples/macros examples/node examples/tokens examples/tree || true",
-    "eslint-fix": "node node_modules/eslint/bin/eslint.js --fix src test/rand test/unit examples/macros examples/node examples/tokens examples/tree || true"
+    "roll": "rollup --config ./tools/rollup.config.mjs",
+    "minify": "uglifyjs ./build/espace.mjs --config-file ./tools/uglify.config.json --output ./build/espace.min.mjs",
+    "build": "npm run roll && npm run minify"
   }
 }
