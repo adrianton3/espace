@@ -1,0 +1,4 @@
+{
+  "spec_dir": "test/unit/spec",
+  "spec_files": ["**/*-test.mjs"]
+}
