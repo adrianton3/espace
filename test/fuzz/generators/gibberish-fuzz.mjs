@@ -20,7 +20,7 @@ repeat(testCount, () => {
         try {
             const tokens = tokenize(gibberish)
             const tree = parse(tokens)
-            const serializedExpression = serialize(tree)
+            const _serializedExpression = serialize(tree)
         } catch (ex) {
             if (!Object.hasOwn(ex, 'coords')) {
                 report(gibberish)

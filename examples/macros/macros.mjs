@@ -84,7 +84,7 @@ function setupLinks () {
     const selection = document.getElementsByClassName('link')
     const elements = Array.prototype.slice.call(selection, 0)
 
-    const handleClick = function (ev) {
+    const handleClick = function (_ev) {
         const example = this.getAttribute('data-example')
         sourceEditor.setValue(SAMPLE_TEXTS[example].source, 1)
         macrosEditor.setValue(SAMPLE_TEXTS[example].macros, 1)

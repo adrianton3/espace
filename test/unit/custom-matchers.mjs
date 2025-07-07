@@ -1,4 +1,4 @@
-function toThrowWithMessage (util, customEqualityTesters) {
+function toThrowWithMessage (_util, _customEqualityTesters) {
     return {
         compare (actual, expected) {
             const result = {}

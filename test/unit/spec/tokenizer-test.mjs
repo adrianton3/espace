@@ -175,8 +175,8 @@ describe('tokenizer', () => {
                 expect(tokenize(string)).toEqual([makeString(eval(string))])
             })
 
-            it('unescapes \\\"', () => {
-                const string = '"\\\""'
+            it('unescapes \\"', () => {
+                const string = '"\\""'
                 expect(tokenize(string)).toEqual([makeString(eval(string))])
             })
 

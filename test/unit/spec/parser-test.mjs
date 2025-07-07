@@ -81,13 +81,13 @@ describe('parser', ()=> {
     it('can parse a one element paren', () => {
         const tokens = [
             makeOpen('('),
-            makeIdentifier('x'),
+            makeString('asd'),
             makeClosed(')'),
         ]
 
         expect(parse(tokens)).toEqual([
             makeAst.list('(', [
-                makeAst.atom('identifier', 'x'),
+                makeAst.atom('string', 'asd'),
             ])
         ])
     })

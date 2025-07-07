@@ -162,7 +162,7 @@ function tokenize (string, options = {}) {
             } else if (current === ')' || current === ']' || current === '}') {
                 tokens.push(makeToken('closed', current, str.getCoords()))
                 str.advance()
-            } else if (prefixes.hasOwnProperty(current)) {
+            } else if (Object.hasOwn(prefixes, current)) {
                 tokens.push(makeToken('prefix', prefixes[current], str.getCoords()))
                 str.advance()
             } else if (current > ' ' && current <= '~') {
