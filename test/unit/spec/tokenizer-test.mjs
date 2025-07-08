@@ -60,27 +60,49 @@ describe('tokenizer', () => {
         })
 
         it('tokenizes a binary number', () => {
-            expect(tokenize('0b0')).toEqual([makeNumber(0)])
-            expect(tokenize('0b1')).toEqual([makeNumber(1)])
-            expect(tokenize('0b000')).toEqual([makeNumber(0)])
-            expect(tokenize('0b001')).toEqual([makeNumber(1)])
-            expect(tokenize('0b100')).toEqual([makeNumber(4)])
-            expect(tokenize('0b111')).toEqual([makeNumber(7)])
+            expect(tokenize('0b0')).toEqual([makeNumber(0b0)])
+            expect(tokenize('0b1')).toEqual([makeNumber(0b1)])
+            expect(tokenize('0b000')).toEqual([makeNumber(0b000)])
+            expect(tokenize('0b001')).toEqual([makeNumber(0b001)])
+            expect(tokenize('0b100')).toEqual([makeNumber(0b100)])
+            expect(tokenize('0b111')).toEqual([makeNumber(0b111)])
         })
 
         it('tokenizes a negative binary number', () => {
-            expect(tokenize('-0b0')).toEqual([makeNumber(0)])
-            expect(tokenize('-0b1')).toEqual([makeNumber(-1)])
-            expect(tokenize('-0b000')).toEqual([makeNumber(0)])
-            expect(tokenize('-0b001')).toEqual([makeNumber(-1)])
-            expect(tokenize('-0b100')).toEqual([makeNumber(-4)])
-            expect(tokenize('-0b111')).toEqual([makeNumber(-7)])
+            expect(tokenize('-0b0')).toEqual([makeNumber(0b0)])
+            expect(tokenize('-0b1')).toEqual([makeNumber(-0b1)])
+            expect(tokenize('-0b000')).toEqual([makeNumber(0b000)])
+            expect(tokenize('-0b001')).toEqual([makeNumber(-0b001)])
+            expect(tokenize('-0b100')).toEqual([makeNumber(-0b100)])
+            expect(tokenize('-0b111')).toEqual([makeNumber(-0b111)])
+        })
+
+        it('tokenizes a hexadecimal number', () => {
+            expect(tokenize('0x0')).toEqual([makeNumber(0x0)])
+            expect(tokenize('0x1')).toEqual([makeNumber(0x1)])
+            expect(tokenize('0x000')).toEqual([makeNumber(0x000)])
+            expect(tokenize('0x00f')).toEqual([makeNumber(0x00f)])
+            expect(tokenize('0x02C')).toEqual([makeNumber(0x02C)])
+            expect(tokenize('0x100')).toEqual([makeNumber(0x100)])
+            expect(tokenize('0xabc')).toEqual([makeNumber(0xabc)])
+            expect(tokenize('0xABC')).toEqual([makeNumber(0xABC)])
+        })
+
+        it('tokenizes a negative hexadecimal number', () => {
+            expect(tokenize('-0x0')).toEqual([makeNumber(0x0)])
+            expect(tokenize('-0x1')).toEqual([makeNumber(-0x1)])
+            expect(tokenize('-0x000')).toEqual([makeNumber(0x000)])
+            expect(tokenize('-0x00f')).toEqual([makeNumber(-0x00f)])
+            expect(tokenize('-0x02C')).toEqual([makeNumber(-0x02C)])
+            expect(tokenize('-0x100')).toEqual([makeNumber(-0x100)])
+            expect(tokenize('-0xabc')).toEqual([makeNumber(-0xabc)])
+            expect(tokenize('-0xABC')).toEqual([makeNumber(-0xABC)])
         })
 
         it('throws an exception when given a number followed by non-separators', () => {
-            expect(tokenize.bind(null, '123A')).toThrow(new Error("Unexpected character 'A' after '123'"))
+            expect(tokenize.bind(null, '123A')).toThrow(new Error("Unexpected character 'A'"))
             // half pi
-            expect(tokenize.bind(null, '3.14.5')).toThrow(new Error("Unexpected character '.' after '3.14'"))
+            expect(tokenize.bind(null, '3.14.5')).toThrow(new Error("Unexpected character '.'"))
         })
 
         it('throws an exception when tokenizing an incomplete binary number', () => {
@@ -89,13 +111,36 @@ describe('tokenizer', () => {
         })
 
         it('throws an exception when given a binary number that starts with 2', () => {
-            expect(tokenize.bind(null, '0b2')).toThrow(new Error("Unexpected character '2' after '0b'"))
+            expect(tokenize.bind(null, '0b2')).toThrow(new Error("Unexpected character '2'"))
+            expect(tokenize.bind(null, '-0b2')).toThrow(new Error("Unexpected character '2'"))
         })
 
         it('throws an exception when given a binary number followed by non-separators', () => {
-            expect(tokenize.bind(null, '0b102')).toThrow(new Error("Unexpected character '2' after '0b10'"))
-            expect(tokenize.bind(null, '0b10A')).toThrow(new Error("Unexpected character 'A' after '0b10'"))
-            expect(tokenize.bind(null, '0b11!')).toThrow(new Error("Unexpected character '!' after '0b11'"))
+            expect(tokenize.bind(null, '0b102')).toThrow(new Error("Unexpected character '2'"))
+            expect(tokenize.bind(null, '0b10A')).toThrow(new Error("Unexpected character 'A'"))
+            expect(tokenize.bind(null, '0b11!')).toThrow(new Error("Unexpected character '!'"))
+            expect(tokenize.bind(null, '-0b102')).toThrow(new Error("Unexpected character '2'"))
+            expect(tokenize.bind(null, '-0b10A')).toThrow(new Error("Unexpected character 'A'"))
+            expect(tokenize.bind(null, '-0b11!')).toThrow(new Error("Unexpected character '!'"))
+        })
+
+        it('throws an exception when tokenizing an incomplete hexadecimal number', () => {
+            expect(tokenize.bind(null, '0x')).toThrow(new Error("Number not terminated"))
+            expect(tokenize.bind(null, '-0x')).toThrow(new Error("Number not terminated"))
+        })
+
+        it('throws an exception when given a hexadecimal number that starts with g', () => {
+            expect(tokenize.bind(null, '0xg')).toThrow(new Error("Unexpected character 'g'"))
+            expect(tokenize.bind(null, '-0xg')).toThrow(new Error("Unexpected character 'g'"))
+        })
+
+        it('throws an exception when given a hexadecimal number followed by non-separators', () => {
+            expect(tokenize.bind(null, '0x10G')).toThrow(new Error("Unexpected character 'G'"))
+            expect(tokenize.bind(null, '0x10g')).toThrow(new Error("Unexpected character 'g'"))
+            expect(tokenize.bind(null, '0x11!')).toThrow(new Error("Unexpected character '!'"))
+            expect(tokenize.bind(null, '-0x10G')).toThrow(new Error("Unexpected character 'G'"))
+            expect(tokenize.bind(null, '-0x10g')).toThrow(new Error("Unexpected character 'g'"))
+            expect(tokenize.bind(null, '-0x11!')).toThrow(new Error("Unexpected character '!'"))
         })
     })
 

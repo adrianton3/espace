@@ -48,6 +48,18 @@ function tokenize (string, optionsMaybe) {
         }
     }
 
+    function isDigitBin (char) {
+        return char === '0' || char === '1'
+    }
+
+    function isDigitDec (char) {
+        return char >= '0' && char <= '9'
+    }
+
+    function isDigitHex (char) {
+        return isDigitDec(char) || (char >= 'A' && char <= 'F') || (char >= 'a' && char <= 'f')
+    }
+
     function chopNumber (str) {
         str.setMarker()
 
@@ -66,8 +78,8 @@ function tokenize (string, optionsMaybe) {
             }
 
             const current = str.getCurrent()
-            if (current !== '0' && current !== '1') {
-                raise(str.getCoords(), `Unexpected character '${str.getCurrent()}' after '${str.getMarked()}'`)
+            if (!isDigitBin(current)) {
+                raise(str.getCoords(), `Unexpected character '${str.getCurrent()}'`)
             }
 
             str.setMarker()
@@ -82,7 +94,7 @@ function tokenize (string, optionsMaybe) {
                 const current = str.getCurrent()
                 if (current !== '0' && current !== '1') {
                     if (!')]} \n\t;'.includes(current)) {
-                        raise(str.getCoords(), `Unexpected character '${str.getCurrent()}' after '0b${str.getMarked()}'`)
+                        raise(str.getCoords(), `Unexpected character '${str.getCurrent()}'`)
                     }
                     const value = parseInt(str.getMarked(), 2)
                     return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
@@ -90,9 +102,42 @@ function tokenize (string, optionsMaybe) {
 
                 str.advance()
             }
+        } else if (str.getCurrent() === '0' && str.getNext() === 'x') {
+            str.advance()
+            str.advance()
+
+            if (!str.hasCurrent()) {
+                raise(str.getCoords(), 'Number not terminated')
+            }
+
+            const current = str.getCurrent()
+            if (!isDigitHex(current)) {
+                raise(str.getCoords(), `Unexpected character '${str.getCurrent()}'`)
+            }
+
+            str.setMarker()
+            str.advance()
+
+            while (true) {
+                if (!str.hasCurrent()) {
+                    const value = parseInt(str.getMarked(), 16)
+                    return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
+                }
+
+                const current = str.getCurrent()
+                if (!isDigitHex(current)) {
+                    if (!')]} \n\t;'.includes(current)) {
+                        raise(str.getCoords(), `Unexpected character '${str.getCurrent()}'`)
+                    }
+                    const value = parseInt(str.getMarked(), 16)
+                    return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
+                }
+
+                str.advance()
+            }
         } else {
             let tmp = str.getCurrent()
-            while (tmp >= '0' && tmp <= '9') {
+            while (isDigitDec(tmp)) {
                 str.advance()
                 tmp = str.getCurrent()
             }
@@ -100,7 +145,7 @@ function tokenize (string, optionsMaybe) {
             if (str.getCurrent() === '.') {
                 str.advance()
                 let tmp = str.getCurrent()
-                while (tmp >= '0' && tmp <= '9') {
+                while (isDigitDec(tmp)) {
                     str.advance()
                     tmp = str.getCurrent()
                 }
@@ -108,7 +153,7 @@ function tokenize (string, optionsMaybe) {
         }
 
         if (!')]} \n\t;'.includes(str.getCurrent())) {
-            raise(str.getCoords(), `Unexpected character '${str.getCurrent()}' after '${str.getMarked()}'`)
+            raise(str.getCoords(), `Unexpected character '${str.getCurrent()}'`)
         }
 
         return makeToken('number', Number(str.getMarked()), str.getCoords())
@@ -215,7 +260,7 @@ function tokenize (string, optionsMaybe) {
 
                 const next = str.getNext()
 
-                if (next >= '0' && next <= '9') {
+                if (isDigitDec(next)) {
                     tokens.push(chopNumber(str))
                     continue
                 }
@@ -228,7 +273,7 @@ function tokenize (string, optionsMaybe) {
 
                     const nextNext = str.getNextNext()
 
-                    if (nextNext >= '0' && nextNext <= '9') {
+                    if (isDigitDec(nextNext)) {
                         tokens.push(chopNumber(str))
                         continue
                     }
@@ -246,7 +291,7 @@ function tokenize (string, optionsMaybe) {
 
                 const next = str.getNext()
 
-                if (next >= '0' && next <= '9') {
+                if (isDigitDec(next)) {
                     tokens.push(chopNumber(str))
                     continue
                 }
@@ -255,7 +300,7 @@ function tokenize (string, optionsMaybe) {
                 continue
             }
 
-            if (current >= '0' && current <= '9') {
+            if (isDigitDec(current)) {
                 tokens.push(chopNumber(str))
                 continue
             }
