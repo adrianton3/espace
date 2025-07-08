@@ -174,22 +174,54 @@ function tokenize (string, optionsMaybe) {
             }
 
             if (current === '-') {
-                if (str.hasNext()) {
-                    const next = str.getNext()
-
-                    if (next >= '0' && next <= '9' || next === '.') {
-                        tokens.push(chopNumber(str))
-                    } else {
-                        tokens.push(chopIdentifier(str))
-                    }
-                } else {
+                if (!str.hasNext()) {
                     tokens.push(makeToken('identifier', '-', str.getCoords()))
-                    str.advance()
+                    return tokens
                 }
+
+                const next = str.getNext()
+
+                if (next >= '0' && next <= '9') {
+                    tokens.push(chopNumber(str))
+                    continue
+                }
+
+                if (next === '.') {
+                    if (!str.hasNextNext()) {
+                        tokens.push(makeToken('identifier', '-.', str.getCoords()))
+                        return tokens
+                    }
+
+                    const nextNext = str.getNextNext()
+
+                    if (nextNext >= '0' && nextNext <= '9') {
+                        tokens.push(chopNumber(str))
+                        continue
+                    }
+                }
+
+                tokens.push(chopIdentifier(str))
                 continue
             }
 
-            if ((current >= '0' && current <= '9') || current === '.') {
+            if (current === '.') {
+                if (!str.hasNext()) {
+                    tokens.push(makeToken('identifier', '.', str.getCoords()))
+                    return tokens
+                }
+
+                const next = str.getNext()
+
+                if (next >= '0' && next <= '9') {
+                    tokens.push(chopNumber(str))
+                    continue
+                }
+
+                tokens.push(chopIdentifier(str))
+                continue
+            }
+
+            if (current >= '0' && current <= '9') {
                 tokens.push(chopNumber(str))
                 continue
             }

@@ -38,6 +38,14 @@ IterableString.prototype.getNext = function () {
     return this.string.charAt(this.pointer + 1)
 }
 
+IterableString.prototype.hasNextNext = function () {
+    return this.pointer < this.string.length - 2
+}
+
+IterableString.prototype.getNextNext = function () {
+    return this.string.charAt(this.pointer + 2)
+}
+
 IterableString.prototype.getMarked = function (offset = 0) {
     return this.string.substring(this.marker, this.pointer + offset)
 }

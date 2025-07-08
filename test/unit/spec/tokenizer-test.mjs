@@ -89,6 +89,18 @@ describe('tokenizer', () => {
             expect(tokenize('--')).toEqual([makeIdentifier('--')])
         })
 
+        it('tokenizes "." as an identifier', () => {
+            expect(tokenize('.')).toEqual([makeIdentifier('.')])
+        })
+
+        it('tokenizes "-." as an identifier', () => {
+            expect(tokenize('-.')).toEqual([makeIdentifier('-.')])
+        })
+
+        it('tokenizes "-.a" as an identifier', () => {
+            expect(tokenize('-.a')).toEqual([makeIdentifier('-.a')])
+        })
+
         it('tokenizes an identifier until a comment', () => {
             expect(tokenize('asd;f')).toEqual([makeIdentifier('asd')])
         })
