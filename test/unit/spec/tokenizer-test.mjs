@@ -59,10 +59,43 @@ describe('tokenizer', () => {
             expect(tokenize('1)23')).toEqual([makeNumber(1), makeClosed(')'), makeNumber(23)])
         })
 
+        it('tokenizes a binary number', () => {
+            expect(tokenize('0b0')).toEqual([makeNumber(0)])
+            expect(tokenize('0b1')).toEqual([makeNumber(1)])
+            expect(tokenize('0b000')).toEqual([makeNumber(0)])
+            expect(tokenize('0b001')).toEqual([makeNumber(1)])
+            expect(tokenize('0b100')).toEqual([makeNumber(4)])
+            expect(tokenize('0b111')).toEqual([makeNumber(7)])
+        })
+
+        it('tokenizes a negative binary number', () => {
+            expect(tokenize('-0b0')).toEqual([makeNumber(0)])
+            expect(tokenize('-0b1')).toEqual([makeNumber(-1)])
+            expect(tokenize('-0b000')).toEqual([makeNumber(0)])
+            expect(tokenize('-0b001')).toEqual([makeNumber(-1)])
+            expect(tokenize('-0b100')).toEqual([makeNumber(-4)])
+            expect(tokenize('-0b111')).toEqual([makeNumber(-7)])
+        })
+
         it('throws an exception when given a number followed by non-separators', () => {
             expect(tokenize.bind(null, '123A')).toThrow(new Error("Unexpected character 'A' after '123'"))
             // half pi
             expect(tokenize.bind(null, '3.14.5')).toThrow(new Error("Unexpected character '.' after '3.14'"))
+        })
+
+        it('throws an exception when tokenizing an incomplete binary number', () => {
+            expect(tokenize.bind(null, '0b')).toThrow(new Error("Number not terminated"))
+            expect(tokenize.bind(null, '-0b')).toThrow(new Error("Number not terminated"))
+        })
+
+        it('throws an exception when given a binary number that starts with 2', () => {
+            expect(tokenize.bind(null, '0b2')).toThrow(new Error("Unexpected character '2' after '0b'"))
+        })
+
+        it('throws an exception when given a binary number followed by non-separators', () => {
+            expect(tokenize.bind(null, '0b102')).toThrow(new Error("Unexpected character '2' after '0b10'"))
+            expect(tokenize.bind(null, '0b10A')).toThrow(new Error("Unexpected character 'A' after '0b10'"))
+            expect(tokenize.bind(null, '0b11!')).toThrow(new Error("Unexpected character '!' after '0b11'"))
         })
     })
 

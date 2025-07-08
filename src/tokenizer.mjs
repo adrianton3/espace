@@ -51,30 +51,64 @@ function tokenize (string, optionsMaybe) {
     function chopNumber (str) {
         str.setMarker()
 
+        let minus = false
         if (str.getCurrent() === '-') {
             str.advance()
+            minus = true
         }
 
-        let tmp = str.getCurrent()
-        while (tmp >= '0' && tmp <= '9') {
+        if (str.getCurrent() === '0' && str.getNext() === 'b') {
             str.advance()
-            tmp = str.getCurrent()
-        }
+            str.advance()
 
-        if (str.getCurrent() === '.') {
+            if (!str.hasCurrent()) {
+                raise(str.getCoords(), 'Number not terminated')
+            }
+
+            const current = str.getCurrent()
+            if (current !== '0' && current !== '1') {
+                raise(str.getCoords(), `Unexpected character '${str.getCurrent()}' after '${str.getMarked()}'`)
+            }
+
+            str.setMarker()
             str.advance()
+
+            while (true) {
+                if (!str.hasCurrent()) {
+                    const value = parseInt(str.getMarked(), 2)
+                    return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
+                }
+
+                const current = str.getCurrent()
+                if (current !== '0' && current !== '1') {
+                    if (!')]} \n\t;'.includes(current)) {
+                        raise(str.getCoords(), `Unexpected character '${str.getCurrent()}' after '0b${str.getMarked()}'`)
+                    }
+                    const value = parseInt(str.getMarked(), 2)
+                    return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
+                }
+
+                str.advance()
+            }
+        } else {
             let tmp = str.getCurrent()
             while (tmp >= '0' && tmp <= '9') {
                 str.advance()
                 tmp = str.getCurrent()
             }
+
+            if (str.getCurrent() === '.') {
+                str.advance()
+                let tmp = str.getCurrent()
+                while (tmp >= '0' && tmp <= '9') {
+                    str.advance()
+                    tmp = str.getCurrent()
+                }
+            }
         }
 
         if (!')]} \n\t;'.includes(str.getCurrent())) {
-            raise(
-                str.getCoords(),
-                `Unexpected character '${str.getCurrent()}' after '${str.getMarked()}'`,
-            )
+            raise(str.getCoords(), `Unexpected character '${str.getCurrent()}' after '${str.getMarked()}'`)
         }
 
         return makeToken('number', Number(str.getMarked()), str.getCoords())
