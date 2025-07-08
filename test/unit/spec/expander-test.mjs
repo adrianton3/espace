@@ -334,7 +334,12 @@ describe('Expander', () => {
 
 		it('throws an exception when a pattern contains the same variable twice', () => {
 			expect(validate('(+ a a)', '1'))
-				.toThrowWithMessage('Variable "a" already used in pattern')
+				.toThrowWithMessage(`Variable 'a' already used in pattern`)
+		})
+
+		it('throws an exception when a variable appears also as a rest variable', () => {
+			expect(validate('(+ a b b...)', '(+ a)'))
+				.toThrowWithMessage(`Variable 'b' already used in pattern`)
 		})
 
 		it('throws an exception when a pattern contains more rest variables on the same level', () => {

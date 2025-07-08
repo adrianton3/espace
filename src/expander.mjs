@@ -198,18 +198,25 @@ function validateRule (pattern, substitute) {
                     throw new Error('Pattern can not contain variables prefixed by \'_\'')
                 }
 
-                if (vars.has(subTree.token.value)) {
-                    throw new Error(`Variable "${subTree.token.value}" already used in pattern`)
-                } else {
-                    vars.add(subTree.token.value)
-                }
-
                 if (isRest(subTree.token.value)) {
+                    const restless = subTree.token.value.slice(0, -3)
+                    if (vars.has(restless)) {
+                        throw new Error(`Variable '${restless}' already used in pattern`)
+                    } else {
+                        vars.add(restless)
+                    }
+
                     if (rest) {
                         throw new Error('Pattern can contain at most one rest variable on a level')
                     }
                     rest = true
                     rests.add(subTree.token.value)
+                } else {
+                    if (vars.has(subTree.token.value)) {
+                        throw new Error(`Variable '${subTree.token.value}' already used in pattern`)
+                    } else {
+                        vars.add(subTree.token.value)
+                    }
                 }
             } else if (subTree.type === 'list') {
                 traversePattern(subTree)
