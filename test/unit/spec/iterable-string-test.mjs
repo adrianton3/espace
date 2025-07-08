@@ -4,19 +4,19 @@ import { IterableString } from '../../../src/iterable-string.mjs'
 describe('iterable-string', () => {
     it('can get the current character', () => {
         const istr = new IterableString('asd')
-        expect(istr.current()).toEqual('a')
+        expect(istr.getCurrent()).toEqual('a')
     })
 
     it('can get the next character', () => {
         const istr = new IterableString('asd')
-        expect(istr.next()).toEqual('s')
+        expect(istr.getNext()).toEqual('s')
     })
 
     it('can advance the pointer', () => {
         const istr = new IterableString('asd')
         istr.advance()
-        expect(istr.current()).toEqual('s')
-        expect(istr.next()).toEqual('d')
+        expect(istr.getCurrent()).toEqual('s')
+        expect(istr.getNext()).toEqual('d')
     })
 
     it('can get the marked substring of a string', () => {

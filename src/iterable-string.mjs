@@ -8,7 +8,7 @@ function IterableString (string) {
 }
 
 IterableString.prototype.advance = function () {
-    if (this.current() === '\n') {
+    if (this.getCurrent() === '\n') {
         this.line++
         this.column = 1
     } else {
@@ -22,16 +22,20 @@ IterableString.prototype.setMarker = function (offset = 0) {
     this.marker = this.pointer + offset
 }
 
-IterableString.prototype.current = function () {
+IterableString.prototype.hasCurrent = function () {
+    return this.pointer < this.string.length
+}
+
+IterableString.prototype.getCurrent = function () {
     return this.string.charAt(this.pointer)
 }
 
-IterableString.prototype.next = function () {
-    return this.string.charAt(this.pointer + 1)
+IterableString.prototype.hasNext = function () {
+    return this.pointer < this.string.length - 1
 }
 
-IterableString.prototype.hasNext = function () {
-    return this.pointer < this.string.length
+IterableString.prototype.getNext = function () {
+    return this.string.charAt(this.pointer + 1)
 }
 
 IterableString.prototype.getMarked = function (offset = 0) {

@@ -11,8 +11,6 @@ S-expression parser in JavaScript
 
 ```javascript
 const options = { 
-    whitespace: false,
-    comments: false,
     coords: true,
     prefixes: {
         '#': 'map',
