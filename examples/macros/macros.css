@@ -7,7 +7,7 @@ body {
 .center {
     margin: 0 auto;
     margin-top: 80px;
-    width: 1040px;
+    width: calc(450px * 3 + 40px * 2);
 }
 
 p {
@@ -28,8 +28,7 @@ p {
     background-color: #272822;
     clear: both;
     margin: 0px;
-    padding: 4px;
-    font-size: small;
+    padding: 8px;
 }
 
 .link {
@@ -38,8 +37,8 @@ p {
 }
 
 #source-editor,#macros-editor,#output-editor {
-    width: 320px;
-    height: 300px;
+    width: 450px;
+    height: 700px;
 }
 
 .editor-container+.editor-container {

@@ -2,17 +2,19 @@ import { tokenize } from '../../build/espace.min.mjs'
 
 
 const SAMPLE_TEXT = [
-    '() 123',
-    'asd a-s-d',
-    '\'asd\' "asd"',
-    '\'\\\'\' \'"\'',
-    '"\\"" "\'"',
+    `(let ([a (+ 1 2)]`,
+    `      [b "asd"]`,
+    `      [c 'zxc]`,
+    `      [d 0b1101])`,
+    `     (+ a d))`,
 ].join('\n')
 
 
+const fontSize = 20
+
 const inputEditor = ace.edit('input-editor')
 inputEditor.setTheme('ace/theme/monokai')
-inputEditor.setFontSize(18)
+inputEditor.setFontSize(fontSize)
 inputEditor.setValue(SAMPLE_TEXT, 1)
 inputEditor.on('input', handleInput)
 
@@ -21,14 +23,14 @@ outputEditor.setTheme('ace/theme/monokai')
 outputEditor.getSession().setMode('ace/mode/javascript')
 outputEditor.getSession().setUseWrapMode(true)
 outputEditor.setReadOnly(true)
-outputEditor.setFontSize(18)
+outputEditor.setFontSize(fontSize)
 
 
 function handleInput () {
     const inputText = inputEditor.getValue()
 
     try {
-        const tokens = tokenize(inputText)
+        const tokens = tokenize(inputText, { prefixes: { "'": 'quote' } })
 
         outputEditor.setValue(JSON.stringify(tokens, null, 2), 1)
     } catch (ex) {
