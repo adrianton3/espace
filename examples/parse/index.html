@@ -2,11 +2,11 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>espace | tokens</title>
-    <link rel="stylesheet" href="tokens.css" type="text/css">
+    <title>espace | tree</title>
+    <link rel="stylesheet" href="parse.css" type="text/css">
 </head>
 <body>
-    <p class="title">espace | tokens</p>
+    <p class="title">espace | parse</p>
     <!--<p class="desc">...</p>-->
     <div class="center">
         <div class="editor-container">
@@ -15,7 +15,11 @@
         </div>
         <div class="editor-container">
             <span class="header">Tokens</span>
-            <div id="output-editor"></div>
+            <div id="tokens-editor"></div>
+        </div>
+        <div class="editor-container">
+            <span class="header">Tree</span>
+            <div id="tree-editor"></div>
         </div>
     </div>
 
@@ -24,6 +28,6 @@
     <script src="../lib/ace/mode-javascript.js"></script>
     <script src="../lib/ace/worker-javascript.js"></script>
 
-    <script type="module" src="tokens.mjs"></script>
+    <script type="module" src="parse.mjs"></script>
 </body>
 </html>

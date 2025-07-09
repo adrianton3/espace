@@ -21,22 +21,9 @@ p {
 
 .editor-container {
     float: left;
-    margin-bottom: 96px;
 }
 
-.instructions {
-    background-color: #272822;
-    clear: both;
-    margin: 0px;
-    padding: 8px;
-}
-
-.link {
-    text-decoration: underline;
-    font-weight: bold;
-}
-
-#source-editor,#macros-editor,#output-editor {
+#input-editor,#tokens-editor,#tree-editor {
     width: 580px;
     height: 700px;
 }

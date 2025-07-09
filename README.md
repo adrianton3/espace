@@ -3,9 +3,8 @@ espace
 
 S-expression parser in JavaScript
 
-+ [Tokens](http://adrianton3.github.io/espace/examples/tokens/)
-+ [Tree](http://adrianton3.github.io/espace/examples/tree/)
-+ [Macros](http://adrianton3.github.io/espace/examples/macros/)
++ [Parser demo](http://adrianton3.github.io/espace/examples/parse/)
++ [Macros demo](http://adrianton3.github.io/espace/examples/macros/)
 
 #### Tokenizer
 
