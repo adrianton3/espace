@@ -3,7 +3,7 @@ espace
 
 S-expression parser in JavaScript
 
-+ [Parser demo](http://adrianton3.github.io/espace/examples/parse/)
++ [Parser demo](http://adrianton3.github.io/espace/examples/parser/)
 + [Macros demo](http://adrianton3.github.io/espace/examples/macros/)
 
 #### Tokenizer

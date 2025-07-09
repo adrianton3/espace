@@ -16,7 +16,10 @@ p {
 
 .title,.header {
     font-weight: bold;
-    font-size: small;
+}
+
+.demo-link {
+    color: #CCCCCC;
 }
 
 .editor-container {
