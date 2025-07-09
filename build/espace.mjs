@@ -9,7 +9,7 @@ function IterableString (string) {
 }
 
 IterableString.prototype.advance = function () {
-    if (this.current() === '\n') {
+    if (this.getCurrent() === '\n') {
         this.line++;
         this.column = 1;
     } else {
@@ -23,16 +23,28 @@ IterableString.prototype.setMarker = function (offset = 0) {
     this.marker = this.pointer + offset;
 };
 
-IterableString.prototype.current = function () {
+IterableString.prototype.hasCurrent = function () {
+    return this.pointer < this.string.length
+};
+
+IterableString.prototype.getCurrent = function () {
     return this.string.charAt(this.pointer)
 };
 
-IterableString.prototype.next = function () {
+IterableString.prototype.hasNext = function () {
+    return this.pointer < this.string.length - 1
+};
+
+IterableString.prototype.getNext = function () {
     return this.string.charAt(this.pointer + 1)
 };
 
-IterableString.prototype.hasNext = function () {
-    return this.pointer < this.string.length
+IterableString.prototype.hasNextNext = function () {
+    return this.pointer < this.string.length - 2
+};
+
+IterableString.prototype.getNextNext = function () {
+    return this.string.charAt(this.pointer + 2)
 };
 
 IterableString.prototype.getMarked = function (offset = 0) {
@@ -52,11 +64,12 @@ function raise$1 (coords, message) {
     throw exception
 }
 
-function tokenize (string, options = {}) {
-    const whitespace = !!options.whitespace;
-    const comments = !!options.comments;
-    const coords = !!options.coords;
-    const prefixes = options.prefixes || {};
+function tokenize (string, optionsMaybe) {
+    const coords = optionsMaybe?.coords === true;
+
+    const prefixes = optionsMaybe?.prefixes != null ?
+        new Map(Object.entries(optionsMaybe.prefixes)) :
+        new Map;
 
     const makeToken = coords ?
         (type, value, coords) => ({ type, value, coords }) :
@@ -70,82 +83,169 @@ function tokenize (string, options = {}) {
     };
 
     function chopString (str) {
-        const accumulated = [];
+        const chars = [];
         str.advance();
 
         while (true) {
-            if (str.current() === '\\') {
+            if (str.getCurrent() === '\\') {
                 str.advance();
-                if (escape[str.current()]) {
-                    accumulated.push(escape[str.current()]);
+                if (escape[str.getCurrent()]) {
+                    chars.push(escape[str.getCurrent()]);
                 }
-            } else if (str.current() === '"') {
+            } else if (str.getCurrent() === '"') {
                 str.advance();
-                return makeToken('string', accumulated.join(''), str.getCoords())
-            } else if (str.current() === '\n' || !str.hasNext()) {
-                raise$1(str.getCoords(), 'String not properly ended');
+                return makeToken('string', chars.join(''), str.getCoords())
+            } else if (str.getCurrent() === '\n' || !str.hasNext()) {
+                raise$1(str.getCoords(), 'String not terminated');
             } else {
-                accumulated.push(str.current());
+                chars.push(str.getCurrent());
             }
 
             str.advance();
         }
     }
 
+    function isDigitBin (char) {
+        return char === '0' || char === '1'
+    }
+
+    function isDigitDec (char) {
+        return char >= '0' && char <= '9'
+    }
+
+    function isDigitHex (char) {
+        return isDigitDec(char) || (char >= 'A' && char <= 'F') || (char >= 'a' && char <= 'f')
+    }
+
     function chopNumber (str) {
         str.setMarker();
 
-        let tmp = str.current();
-        while (tmp >= '0' && tmp <= '9') {
+        let minus = false;
+        if (str.getCurrent() === '-') {
             str.advance();
-            tmp = str.current();
+            minus = true;
         }
 
-        if (str.current() === '.') {
+        if (str.getCurrent() === '0' && str.getNext() === 'b') {
             str.advance();
-            let tmp = str.current();
-            while (tmp >= '0' && tmp <= '9') {
+            str.advance();
+
+            if (!str.hasCurrent()) {
+                raise$1(str.getCoords(), 'Number not terminated');
+            }
+
+            const current = str.getCurrent();
+            if (!isDigitBin(current)) {
+                raise$1(str.getCoords(), `Unexpected character '${str.getCurrent()}'`);
+            }
+
+            str.setMarker();
+            str.advance();
+
+            while (true) {
+                if (!str.hasCurrent()) {
+                    const value = parseInt(str.getMarked(), 2);
+                    return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
+                }
+
+                const current = str.getCurrent();
+                if (current !== '0' && current !== '1') {
+                    if (!')]} \n\t;'.includes(current)) {
+                        raise$1(str.getCoords(), `Unexpected character '${str.getCurrent()}'`);
+                    }
+                    const value = parseInt(str.getMarked(), 2);
+                    return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
+                }
+
                 str.advance();
-                tmp = str.current();
+            }
+        } else if (str.getCurrent() === '0' && str.getNext() === 'x') {
+            str.advance();
+            str.advance();
+
+            if (!str.hasCurrent()) {
+                raise$1(str.getCoords(), 'Number not terminated');
+            }
+
+            const current = str.getCurrent();
+            if (!isDigitHex(current)) {
+                raise$1(str.getCoords(), `Unexpected character '${str.getCurrent()}'`);
+            }
+
+            str.setMarker();
+            str.advance();
+
+            while (true) {
+                if (!str.hasCurrent()) {
+                    const value = parseInt(str.getMarked(), 16);
+                    return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
+                }
+
+                const current = str.getCurrent();
+                if (!isDigitHex(current)) {
+                    if (!')]} \n\t;'.includes(current)) {
+                        raise$1(str.getCoords(), `Unexpected character '${str.getCurrent()}'`);
+                    }
+                    const value = parseInt(str.getMarked(), 16);
+                    return makeToken('number', value === 0 ? 0 : minus ? -value : value , str.getCoords())
+                }
+
+                str.advance();
+            }
+        } else {
+            let tmp = str.getCurrent();
+            while (isDigitDec(tmp)) {
+                str.advance();
+                tmp = str.getCurrent();
+            }
+
+            if (str.getCurrent() === '.') {
+                str.advance();
+                let tmp = str.getCurrent();
+                while (isDigitDec(tmp)) {
+                    str.advance();
+                    tmp = str.getCurrent();
+                }
             }
         }
 
-        if (!')]} \n\t'.includes(str.current())) {
-            raise$1(
-                str.getCoords(),
-                `Unexpected character '${str.current()}' after '${str.getMarked()}'`,
-            );
+        if (!')]} \n\t;'.includes(str.getCurrent())) {
+            raise$1(str.getCoords(), `Unexpected character '${str.getCurrent()}'`);
         }
 
         return makeToken('number', Number(str.getMarked()), str.getCoords())
     }
 
     function chopCommentMulti (str) {
-        str.setMarker(2);
         str.advance();
         str.advance();
 
-        while (true) {
-            if (str.current() === '-' && str.next() === ';') {
-                str.advance();
-                str.advance();
-                return makeToken('comment', str.getMarked(-2), str.getCoords())
-            } else if (str.hasNext()) {
-                str.advance();
-            } else {
-                raise$1(str.getCoords(), 'Multiline comment not properly terminated');
+        while (str.hasCurrent()) {
+            if (str.getCurrent() === '-') {
+                if (!str.hasNext()) {
+                    raise$1(str.getCoords(), 'Multiline comment not terminated');
+                }
+
+                if (str.getNext() === ';') {
+                    str.advance();
+                    str.advance();
+                    return
+                }
             }
+
+            str.advance();
         }
+
+        raise$1(str.getCoords(), 'Multiline comment not terminated');
     }
 
     function chopCommentSingle (str) {
-        str.setMarker(1);
         str.advance();
 
-        while (true) {
-            if (str.current() === '\n' || !str.hasNext()) {
+        while (str.hasCurrent()) {
+            if (str.getCurrent() === '\n') {
                 str.advance();
-                return makeToken('comment', str.getMarked(), str.getCoords())
+                return
             } else {
                 str.advance();
             }
@@ -155,69 +255,125 @@ function tokenize (string, options = {}) {
     function chopIdentifier (str) {
         str.setMarker();
 
-        let tmp = str.current();
-        while (
-            tmp > ' ' && tmp <= '~' &&
-            tmp !== '(' && tmp !== ')' &&
-            tmp !== '[' && tmp !== ']' &&
-            tmp !== '{' && tmp !== '}'
-        ) {
+        while (true) {
+            if (!str.hasCurrent()) {
+                return makeToken('identifier', str.getMarked(), str.getCoords())
+            }
+
+            const current = str.getCurrent();
+
+            if (
+                current <= ' ' || current > '~' ||
+                current === '(' || current === ')' ||
+                current === '[' || current === ']' ||
+                current === '{' || current === '}' ||
+                current === ';'
+            ) {
+                return makeToken('identifier', str.getMarked(), str.getCoords())
+            }
+
             str.advance();
-            tmp = str.current();
         }
-
-        return makeToken('identifier', str.getMarked(), str.getCoords())
-    }
-
-    function chopWhitespace (str) {
-        const tmp = str.current();
-        str.advance();
-        return makeToken('whitespace', tmp, str.getCoords())
     }
 
     return (() => {
         const str = new IterableString(string);
         const tokens = [];
 
-        while (str.hasNext()) {
-            const current = str.current();
+        while (str.hasCurrent()) {
+            const current = str.getCurrent();
 
-            // TODO: use a table instead
             if (current === '"') {
                 tokens.push(chopString(str));
-            } else if (current === ';') {
-                if (str.next() === '-') {
-                    const tmp = chopCommentMulti(str);
+                continue
+            }
 
-                    if (comments) {
-                        tokens.push(tmp);
-                    }
+            if (current === ';') {
+                if (str.getNext() === '-') {
+                    chopCommentMulti(str);
                 } else {
-                    const tmp = chopCommentSingle(str);
-
-                    if (comments) {
-                        tokens.push(tmp);
-                    }
+                    chopCommentSingle(str);
                 }
-            } else if (current >= '0' && current <= '9') {
-                tokens.push(chopNumber(str));
-            } else if (current === '(' || current === '[' || current === '{') {
+                continue
+            }
+
+            if (current === '(' || current === '[' || current === '{') {
                 tokens.push(makeToken('open', current, str.getCoords()));
                 str.advance();
-            } else if (current === ')' || current === ']' || current === '}') {
+                continue
+            }
+
+            if (current === ')' || current === ']' || current === '}') {
                 tokens.push(makeToken('closed', current, str.getCoords()));
                 str.advance();
-            } else if (prefixes.hasOwnProperty(current)) {
-                tokens.push(makeToken('prefix', prefixes[current], str.getCoords()));
-                str.advance();
-            } else if (current > ' ' && current <= '~') {
-                tokens.push(chopIdentifier(str));
-            } else {
-                const tmp = chopWhitespace(str);
-                if (whitespace) {
-                    tokens.push(tmp);
-                }
+                continue
             }
+
+            if (current === '-') {
+                if (!str.hasNext()) {
+                    tokens.push(makeToken('identifier', '-', str.getCoords()));
+                    return tokens
+                }
+
+                const next = str.getNext();
+
+                if (isDigitDec(next)) {
+                    tokens.push(chopNumber(str));
+                    continue
+                }
+
+                if (next === '.') {
+                    if (!str.hasNextNext()) {
+                        tokens.push(makeToken('identifier', '-.', str.getCoords()));
+                        return tokens
+                    }
+
+                    const nextNext = str.getNextNext();
+
+                    if (isDigitDec(nextNext)) {
+                        tokens.push(chopNumber(str));
+                        continue
+                    }
+                }
+
+                tokens.push(chopIdentifier(str));
+                continue
+            }
+
+            if (current === '.') {
+                if (!str.hasNext()) {
+                    tokens.push(makeToken('identifier', '.', str.getCoords()));
+                    return tokens
+                }
+
+                const next = str.getNext();
+
+                if (isDigitDec(next)) {
+                    tokens.push(chopNumber(str));
+                    continue
+                }
+
+                tokens.push(chopIdentifier(str));
+                continue
+            }
+
+            if (isDigitDec(current)) {
+                tokens.push(chopNumber(str));
+                continue
+            }
+
+            if (prefixes.has(current)) {
+                tokens.push(makeToken('prefix', prefixes.get(current), str.getCoords()));
+                str.advance();
+                continue
+            }
+
+            if (current > ' ' && current <= '~') {
+                tokens.push(chopIdentifier(str));
+                continue
+            }
+
+            str.advance();
         }
 
         // tokens.push(tokenV('END', str.getCoords()));
@@ -547,18 +703,25 @@ function validateRule (pattern, substitute) {
                     throw new Error('Pattern can not contain variables prefixed by \'_\'')
                 }
 
-                if (vars.has(subTree.token.value)) {
-                    throw new Error(`Variable "${subTree.token.value}" already used in pattern`)
-                } else {
-                    vars.add(subTree.token.value);
-                }
-
                 if (isRest(subTree.token.value)) {
+                    const restless = subTree.token.value.slice(0, -3);
+                    if (vars.has(restless)) {
+                        throw new Error(`Variable '${restless}' already used in pattern`)
+                    } else {
+                        vars.add(restless);
+                    }
+
                     if (rest) {
                         throw new Error('Pattern can contain at most one rest variable on a level')
                     }
                     rest = true;
                     rests.add(subTree.token.value);
+                } else {
+                    if (vars.has(subTree.token.value)) {
+                        throw new Error(`Variable '${subTree.token.value}' already used in pattern`)
+                    } else {
+                        vars.add(subTree.token.value);
+                    }
                 }
             } else if (subTree.type === 'list') {
                 traversePattern(subTree);

@@ -1,4 +1,4 @@
-import { tokenize, parse } from '../../build/espace.mjs'
+import { tokenize, parse } from '../../build/espace.min.mjs'
 
 
 const SAMPLE_TEXT = [
@@ -7,9 +7,11 @@ const SAMPLE_TEXT = [
 ].join('\n')
 
 
+const fontSize = 20
+
 const inputEditor = ace.edit('input-editor')
 inputEditor.setTheme('ace/theme/monokai')
-inputEditor.setFontSize(18)
+inputEditor.setFontSize(fontSize)
 inputEditor.setValue(SAMPLE_TEXT, 1)
 inputEditor.on('input', handleInput)
 
@@ -18,7 +20,7 @@ outputEditor.setTheme('ace/theme/monokai')
 outputEditor.getSession().setMode('ace/mode/javascript')
 outputEditor.getSession().setUseWrapMode(true)
 outputEditor.setReadOnly(true)
-outputEditor.setFontSize(18)
+outputEditor.setFontSize(fontSize)
 
 
 function handleInput () {

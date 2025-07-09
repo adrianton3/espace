@@ -1,4 +1,4 @@
-import { tokenize, parse, serialize, validateRule, expand } from '../../build/espace.mjs'
+import { tokenize, parse, serialize, validateRule, expand } from '../../build/espace.min.mjs'
 
 
 const SAMPLE_TEXTS = {
@@ -61,15 +61,17 @@ let macrosEditor = null
 let outputEditor = null
 
 function setupEditors () {
+    const fontSize = 20
+
     sourceEditor = ace.edit('source-editor')
     sourceEditor.setTheme('ace/theme/monokai')
-    sourceEditor.setFontSize(18)
+    sourceEditor.setFontSize(fontSize)
     sourceEditor.setValue(SAMPLE_TEXTS.simple.source, 1)
     sourceEditor.on('input', handleInput)
 
     macrosEditor = ace.edit('macros-editor')
     macrosEditor.setTheme('ace/theme/monokai')
-    macrosEditor.setFontSize(18)
+    macrosEditor.setFontSize(fontSize)
     macrosEditor.setValue(SAMPLE_TEXTS.simple.macros, 1)
     macrosEditor.on('input', handleInput)
 
@@ -77,14 +79,14 @@ function setupEditors () {
     outputEditor.setTheme('ace/theme/monokai')
     outputEditor.getSession().setUseWrapMode(true)
     outputEditor.setReadOnly(true)
-    outputEditor.setFontSize(18)
+    outputEditor.setFontSize(fontSize)
 }
 
 function setupLinks () {
     const selection = document.getElementsByClassName('link')
     const elements = Array.prototype.slice.call(selection, 0)
 
-    const handleClick = function (ev) {
+    const handleClick = function (_ev) {
         const example = this.getAttribute('data-example')
         sourceEditor.setValue(SAMPLE_TEXTS[example].source, 1)
         macrosEditor.setValue(SAMPLE_TEXTS[example].macros, 1)
