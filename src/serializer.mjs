@@ -1,6 +1,6 @@
 function serialize (expression) {
     if (expression instanceof Array) {
-        return expression.map(serialize).join(' ')
+        return expression.map(serialize).join('\n\n')
     }
 
     if (expression.type === 'list') {

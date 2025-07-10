@@ -29,7 +29,7 @@ describe('serializer', () => {
             },
         }]
 
-        expect(serialize(tree)).toEqual('123 321')
+        expect(serialize(tree)).toEqual('123\n\n321')
     })
 
     it('can serialize a string', () => {
@@ -86,7 +86,7 @@ describe('serializer', () => {
             children: [],
         }]
 
-        expect(serialize(tree)).toEqual('() ()')
+        expect(serialize(tree)).toEqual('()\n\n()')
     })
 
     it('can serialize []', () => {

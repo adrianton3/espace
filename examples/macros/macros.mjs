@@ -83,18 +83,15 @@ function setupEditors () {
 }
 
 function setupLinks () {
-    const selection = document.getElementsByClassName('link')
-    const elements = Array.prototype.slice.call(selection, 0)
-
     const handleClick = function (_ev) {
         const example = this.getAttribute('data-example')
         sourceEditor.setValue(SAMPLE_TEXTS[example].source, 1)
         macrosEditor.setValue(SAMPLE_TEXTS[example].macros, 1)
     }
 
-    elements.forEach(function (element) {
+    for (const element of document.getElementsByClassName('link')) {
         element.addEventListener('click', handleClick)
-    })
+    }
 }
 
 setupEditors()
@@ -104,34 +101,42 @@ function handleInput () {
     const sourceText = sourceEditor.getValue()
     const macrosText = macrosEditor.getValue()
 
-    const getTree = (text) => parse(tokenize(text))
+    const getTree = (text) => parse(tokenize(text, { coords: true }))
 
     try {
-        const sourceTree = getTree(sourceText)[0] // for every member
+        const sourceTrees = getTree(sourceText)
 
-        const macrosTree = getTree(macrosText)[0] // apply every macro
+        const macroTrees = getTree(macrosText)
 
-        if (
-            macrosTree.type !== 'list' ||
-            macrosTree.children.length !== 3 ||
-            macrosTree.children[0].token.value !== 'syntax-rule'
-        ) {
-            throw new Error('Expected a macro definition')
+        for (const macroTree of macroTrees) {
+            if (
+                macroTree.type !== 'list' ||
+                macroTree.children.length !== 3 ||
+                macroTree.children[0].token.value !== 'syntax-rule'
+            ) {
+                const exception = new Error('Expected a macro definition of the form (syntax-rule pattern template)')
+                exception.coords = macroTree.token.coords
+                throw exception
+            }
+
+            validateRule(macroTree.children[1], macroTree.children[2])
         }
 
-        validateRule(macrosTree.children[1], macrosTree.children[2])
+        for (const macroTree of macroTrees) {
+            for (const sourceTree of sourceTrees) {
+                expand(
+                    sourceTree,
+                    macroTree.children[1],
+                    macroTree.children[2],
+                )
+            }
+        }
 
-        expand(
-            sourceTree,
-            macrosTree.children[1],
-            macrosTree.children[2],
-        )
-
-        outputEditor.setValue(serialize(sourceTree), 1)
+        outputEditor.setValue(serialize(sourceTrees), 1)
     } catch (ex) {
-        const exceptionObject = {
-            message: ex.message,
-        }
+        const exceptionObject = ex.coords != null ?
+            { message: ex.message, coords: ex.coords } :
+            { message: ex.message }
 
         outputEditor.setValue(JSON.stringify(exceptionObject, null, 2), 1)
     }
