@@ -1,4 +1,4 @@
-const { tokenize, parse } = require('../../build/espace.min.mjs')
+import { tokenize, parse } from '../../build/espace.min.mjs'
 
 
 const SAMPLE_TEXT = [
