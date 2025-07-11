@@ -105,46 +105,6 @@ describe('Expander', () => {
 		})
 	})
 
-
-	describe('deepClone', () => {
-		it('clones atoms', () => {
-			let expression = getTree('asd')
-			expect(Ex.deepClone(expression)).toEqual(expression)
-
-			expression = getTree('123')
-			expect(Ex.deepClone(expression)).toEqual(expression)
-
-			expression = getTree('"asd"')
-			expect(Ex.deepClone(expression)).toEqual(expression)
-		})
-
-		it('clones an empty expression', () => {
-			const expression = getTree('()')
-			expect(Ex.deepClone(expression)).toEqual(expression)
-		})
-
-		it('clones a simple expression', () => {
-			const expression = getTree('(a)')
-			expect(Ex.deepClone(expression)).toEqual(expression)
-		})
-
-		it('clones a single-level expression', () => {
-			const expression = getTree('(a b c)')
-			expect(Ex.deepClone(expression)).toEqual(expression)
-		})
-
-		it('clones a multi-level expression', () => {
-			const expression = getTree('(a (b c) d)')
-			expect(Ex.deepClone(expression)).toEqual(expression)
-		})
-
-		it('clones a multi-level expression with multiple paren types', () => {
-			const expression = getTree('(a [b {c}] d)')
-			expect(Ex.deepClone(expression)).toEqual(expression)
-		})
-	})
-
-
 	describe('inject', () => {
 		it('injects a variable into a single atom', () => {
 			const source = getTree('a')

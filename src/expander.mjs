@@ -67,23 +67,6 @@ function extract (source, pattern) {
 }
 
 
-function deepClone (tree) {
-    const treeClone = {
-        type: tree.type,
-        token: {
-            type: tree.token.type,
-            value: tree.token.value,
-        },
-    }
-
-    if (tree.type === 'list') {
-        treeClone.children = tree.children.map(deepClone)
-    }
-
-    return treeClone
-}
-
-
 function isPrefixed (string) {
     return string.length > 1 && string[0] === '_'
 }
@@ -261,7 +244,7 @@ function expand (source, pattern, substitute, suffixes = {}) {
         const map = extract(source, pattern)
 
         if (map) {
-            const newSubtree = deepClone(substitute)
+            const newSubtree = structuredClone(substitute)
             inject(newSubtree, map, suffixes)
 
             // putting it back together
@@ -280,7 +263,6 @@ function expand (source, pattern, substitute, suffixes = {}) {
 
 export {
     extract,
-    deepClone,
     inject,
     processForRest,
     validateRule,
